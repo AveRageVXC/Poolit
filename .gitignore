@@ -4,7 +4,7 @@
 bin
 obj
 appsettings.json
-
+yandex.cloud.config.json
 # User-specific files
 *.suo
 *.user
