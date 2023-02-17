@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poolit", "Poolit\Poolit.csproj", "{4F36A9B7-CB83-42D2-96A8-F0DB46FC1455}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "S3ClassLibrary", "S3ClassLibrary\S3ClassLibrary.csproj", "{4006A4FF-8FCE-47E1-AF49-AB5A65986F20}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{4F36A9B7-CB83-42D2-96A8-F0DB46FC1455}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F36A9B7-CB83-42D2-96A8-F0DB46FC1455}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F36A9B7-CB83-42D2-96A8-F0DB46FC1455}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4006A4FF-8FCE-47E1-AF49-AB5A65986F20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4006A4FF-8FCE-47E1-AF49-AB5A65986F20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4006A4FF-8FCE-47E1-AF49-AB5A65986F20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4006A4FF-8FCE-47E1-AF49-AB5A65986F20}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

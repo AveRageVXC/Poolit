@@ -17,4 +17,8 @@
       <Content Include="obj\yandex.cloud.config.json" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\S3ClassLibrary\S3ClassLibrary.csproj" />
+    </ItemGroup>
+
 </Project>

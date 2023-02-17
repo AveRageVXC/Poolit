@@ -5,6 +5,8 @@ bin
 obj
 appsettings.json
 yandex.cloud.config.json
+input.txt
+
 # User-specific files
 *.suo
 *.user
