@@ -32,8 +32,9 @@ public class Startup
                 Version = "v1",
                 Description = "API",
             });
-            var filePath = Path.Combine(AppContext.BaseDirectory, "Poolit.xml");
-            options.IncludeXmlComments(filePath);
+            // У меня xml не грузится и выбрасывает ошибку
+            // var filePath = Path.Combine(AppContext.BaseDirectory, "Poolit.xml");
+            // options.IncludeXmlComments(filePath);
         });
 
         //services.AddControllers().AddNewtonsoftJson(options =>
