@@ -2,8 +2,6 @@
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Poolit.Models;
-using Poolit.Models.Requests;
-using Poolit.Models.Responses;
 using Poolit.Services.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -20,63 +18,19 @@ public class UserService : IUserService
         _tokenConfiguration = tokenConfiguration;
     }
 
-    public async Task<RegisterResponse> RegisterAsync(RegisterRequest request)
-    {
-        var user = new User { Login = request.Login };
-        var hashedPassword = HashPassword(user, request.Password);
-        user.HashedPassword = hashedPassword;
-        user.Id = 0;
-        user.Token = CreateToken(user);
-
-        return new RegisterResponse
-        {
-            User = user
-        };
-    }
-
-    public async Task<LoginResponse> LoginAsync(LoginRequest request)
-    {
-        if (request.Token?.Length > 0)
-        {
-            // check if token is correct
-        }
-
-        var id = 0;
-        // login: w, password: w
-        var hashedPassword = "AQAAAAIAAYagAAAAENBPS1G889jxdh2gdddLCvhEA7gbyF2Jb7MsxOXKkiXWGzcYj9/Z4bfzQi/FTXrv6A==";
-        var user = new User { Login = request.Login, HashedPassword = hashedPassword };
-        user.Id = id;
-
-        if (VerifyPassword(user, hashedPassword, request.Password) != PasswordVerificationResult.Success)
-        {
-            return new LoginResponse
-            {
-                Error = "Wrong login or password",
-                HasError = true,
-            };
-        }
-
-        user.Token = CreateToken(user);
-
-        return new LoginResponse
-        {
-            User = user,
-        };
-    }
-
-    private string HashPassword(User user, string password)
+    public string HashPassword(User user, string password)
     {
         var passwordHasher = new PasswordHasher<User>();
         return passwordHasher.HashPassword(user, password);
     }
 
-    private PasswordVerificationResult VerifyPassword(User user, string hashedPassword, string password)
+    public bool VerifyPassword(User user, string hashedPassword, string password)
     {
         var passwordHasher = new PasswordHasher<User>();
-        return passwordHasher.VerifyHashedPassword(user, hashedPassword, password);
+        return passwordHasher.VerifyHashedPassword(user, hashedPassword, password) == PasswordVerificationResult.Success;
     }
 
-    private string CreateToken(User user)
+    public string CreateToken(User user)
     {
         List<Claim> claims = new List<Claim> {
             new Claim(ClaimTypes.Name, user.Login)

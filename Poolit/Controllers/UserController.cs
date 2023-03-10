@@ -1,7 +1,7 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Poolit.Models;
-using Poolit.Models.Requests;
-using Poolit.Models.Responses;
+using Poolit.Services;
 using Poolit.Services.Interfaces;
 
 namespace Poolit.Controllers;
@@ -27,19 +27,29 @@ public class UserController : ControllerBase
     /// <returns>User</returns>
     [Route("/register")]
     [HttpPost]
-    [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<RegisterResponse>> Register(string login, string password)
+    public async Task<ActionResult<Response>> Register(string login, string password)
     {
         try
         {
-            var request = new RegisterRequest { Login = login, Password = password };
-            var response = await _userService.RegisterAsync(request);
-            return response.HasError is false ? Ok(response) : BadRequest(response);
+            var user = new User { Login = login };
+            var hashedPassword = _userService.HashPassword(user, password);
+            user.HashedPassword = hashedPassword;
+            user.Id = 0;
+            user.Token = _userService.CreateToken(user);
+            var dataEntry = new DataEntry<User>();
+            dataEntry.Data = user;
+            dataEntry.Type = "user";
+            var response = new Response
+            {
+                Data = new DataEntry<User>[] { dataEntry }
+            };
+            return response;
         }
         catch (Exception e)
         {
-            var response = new RegisterResponse { HasError = true, Error = e.Message };
+            var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
             return BadRequest(response);
         }
     }
@@ -53,24 +63,47 @@ public class UserController : ControllerBase
     /// <returns>User</returns>
     [Route("/login")]
     [HttpPost]
-    [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<LoginResponse>> Login(string login, string password, string? token)
+    public async Task<ActionResult<Response>> Login(string login, string password, string? token)
     {
         try
         {
-            var request = new LoginRequest
+            if (token?.Length > 0)
             {
-                Login = login,
-                Password = password,
-                Token = token
+                // check if token is correct
+            }
+
+            var id = 0;
+            // login: w, password: w
+            var hashedPassword = "AQAAAAIAAYagAAAAENBPS1G889jxdh2gdddLCvhEA7gbyF2Jb7MsxOXKkiXWGzcYj9/Z4bfzQi/FTXrv6A==";
+            var user = new User { Login = login, HashedPassword = hashedPassword };
+            user.Id = id;
+
+            if (_userService.VerifyPassword(user, hashedPassword, password) is false)
+            {
+                return new Response
+                {
+                    Error = "Wrong login or password"
+                };
+            }
+
+            user.Token = _userService.CreateToken(user);
+
+            var dataEntry = new DataEntry<User>()
+            {
+                Data = user,
+                Type = "user"
             };
-            var response = await _userService.LoginAsync(request);
-            return response.HasError is false ? Ok(response) : BadRequest(response);
+
+            return new Response
+            {
+                Data = new DataEntry<User>[] { dataEntry },
+            };
         }
         catch (Exception e)
         {
-            var response = new LoginResponse { HasError = true, Error = e.Message };
+            var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
             return BadRequest(response);
         }
     }

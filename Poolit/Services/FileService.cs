@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
-using Poolit.Models.Requests;
-using Poolit.Models.Responses;
+using Poolit.Models;
 using Poolit.Services.Interfaces;
 using System.IO;
 
@@ -15,33 +14,22 @@ public class FileService : IFileService
         _tokenConfiguration = tokenConfiguration;
     }
 
-    public async Task<DownloadFileResponse> DownloadAsync(DownloadFileRequest request)
+    public string GetFileUrlById(ulong id)
     {
-        throw new NotImplementedException();
+        // Опа, из репозитория достается ссылка на файл по его id.
+        var fileName = $"{id}.png";
+        var url = $"./{fileName}";
+        return url;
     }
 
-    public async Task<GetFileDataResponse> GetFileDataAsync(GetFileDataRequest request)
+    public bool FileExists(string path)
     {
-        throw new NotImplementedException();
+        return File.Exists(path);
     }
 
-    public async Task<GetUserFilesResponse> GetUserFilesAsync(GetUserFilesRequest request)
+    public UserFile[] GetUserFiles(ulong userId)
     {
-        throw new NotImplementedException();
-    }
-
-    public async Task<UploadFileResponse> UploadAsync(UploadFileRequest request)
-    {
-        var file = request.File;
-        string path = "./" + file.FileName;
-        using (var fileStream = new FileStream(path, FileMode.Create))
-        {
-            await file.CopyToAsync(fileStream);
-        }
-        var response = new UploadFileResponse
-        {
-            Url = path
-        };
-        return response;
+        var userFiles = new UserFile[] { new UserFile{Id = 0, AuthorId = userId, Name = "1.png", Size = 10000, Url = "./1.png" } };
+        return userFiles;
     }
 }
