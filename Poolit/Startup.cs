@@ -56,16 +56,16 @@ public class Startup
 
         services.Configure<TokensConfiguration>(Configuration.GetSection("Tokens"));
 
-        //services.AddSwaggerGenNewtonsoftSupport();
+        // services.AddSwaggerGenNewtonsoftSupport();
         //   services.Configure<Configuration>(Configuration.GetSection("ConnectionStrings"));
-        /*if (InDocker)
-        {
-            Database.ConnectionString = Configuration.GetConnectionString("DatabaseInDocker");
-        }
-        else
-        {
-            Database.ConnectionString = Configuration.GetConnectionString("Database");
-        }*/
+        // if (InDocker)
+        // {
+        //     Database.ConnectionString = Configuration.GetConnectionString("DatabaseInDocker");
+        // }
+        // else
+        // {
+        //     Database.ConnectionString = Configuration.GetConnectionString("Database");
+        // }
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
