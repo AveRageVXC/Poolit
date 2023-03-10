@@ -1,32 +1,31 @@
 ﻿using Newtonsoft.Json;
 
-namespace Poolit.Models
-{
-    [Serializable]
-    public class Response
-    {
-        private IDataEntry[] _data;
+namespace Poolit.Models;
 
-        [JsonProperty("data")]
-        public IDataEntry[] Data
+[Serializable]
+public class Response
+{
+    private IDataEntry[] _data;
+
+    [JsonProperty("data")]
+    public IDataEntry[] Data
+    {
+        get
         {
-            get
+            return _data;
+        }
+        set
+        {
+            _data = value;
+            if (_data.Length > 0)
             {
-                return _data;
-            }
-            set
-            {
-                _data = value;
-                if (_data.Length > 0)
+                for (var i = 0; i < _data.Length; i++)
                 {
-                    for (var i = 0; i < _data.Length; i++)
-                    {
-                        _data[i].Id = (ulong)i + 1;
-                    }
+                    _data[i].Id = (ulong)i + 1;
                 }
             }
         }
-        [JsonProperty("error")]
-        public string Error { get; set; }
     }
+    [JsonProperty("error")]
+    public string Error { get; set; }
 }

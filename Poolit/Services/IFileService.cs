@@ -1,7 +1,6 @@
-﻿
-using Poolit.Models;
+﻿using Poolit.Models;
 
-namespace Poolit.Services.Interfaces;
+namespace Poolit.Services;
 
 public interface IFileService
 {

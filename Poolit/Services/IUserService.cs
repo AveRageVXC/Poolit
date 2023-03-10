@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Poolit.Models;
 
-namespace Poolit.Services.Interfaces;
+namespace Poolit.Services;
 
 public interface IUserService
 {
