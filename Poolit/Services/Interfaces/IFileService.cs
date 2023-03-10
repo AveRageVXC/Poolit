@@ -1,12 +1,11 @@
-﻿using Poolit.Models.Requests;
-using Poolit.Models.Responses;
+﻿
+using Poolit.Models;
 
 namespace Poolit.Services.Interfaces;
 
 public interface IFileService
 {
-    public Task<UploadFileResponse> UploadAsync(UploadFileRequest request);
-    public Task<DownloadFileResponse> DownloadAsync(DownloadFileRequest request);
-    public Task<GetUserFilesResponse> GetUserFilesAsync(GetUserFilesRequest request);
-    public Task<GetFileDataResponse> GetFileDataAsync(GetFileDataRequest request);
+    public string GetFileUrlById(ulong id);
+    public bool FileExists(string path);
+    public UserFile[] GetUserFiles(ulong userId);
 }

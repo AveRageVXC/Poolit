@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Poolit.Models.Requests;
 using Poolit.Services.Interfaces;
-using Poolit.Models.Responses;
 using Poolit.Models;
+using Microsoft.Net.Http.Headers;
+using Microsoft.AspNetCore.StaticFiles;
+using System.Net.Mime;
 
 namespace Poolit.Controllers;
 
@@ -27,27 +28,101 @@ public class FileController : Controller
     /// <returns>Url to file</returns>
     [Route("/upload")]
     [HttpPost]
-    [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<UploadFileResponse>> Upload(IFormFile file, ulong id)
+    public async Task<ActionResult<Response>> Upload(IFormFile file, ulong id)
     {
         try
         {
-            var request = new UploadFileRequest
+            string path = "./" + file.FileName;
+            using (var fileStream = new FileStream(path, FileMode.Create))
             {
-                File = file,
-                Id = id
+                await file.CopyToAsync(fileStream);
+            }
+
+            var dataEntry = new DataEntry<string>()
+            {
+                Data = path,
+                Type = "string"
             };
-            var response = await _fileService.UploadAsync(request);
-            return response.HasError is false ? Ok(response) : BadRequest(response);
+
+            var response = new Response
+            {
+                Data = new DataEntry<string>[] { dataEntry }
+            };
+            return response;
         }
         catch (Exception e)
         {
-            var response = new RegisterResponse
+            var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
+            return BadRequest(response);
+        }
+    }
+
+    /// <summary>
+    /// File downloading
+    /// </summary>
+    /// <param name="id">File's id</param>
+    /// <returns>Url to file</returns>
+    [Route("/download")]
+    [HttpPost]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<Response>> Download(ulong id)
+    {
+        try
+        {
+            var url = _fileService.GetFileUrlById(id);
+
+            var dataEntry = new DataEntry<string>()
             {
-                HasError = true,
-                Error = e.Message
+                Data = url,
+                Type = "string"
             };
+
+            var response = new Response
+            {
+                Data = new DataEntry<string>[] { dataEntry }
+            };
+            return response;
+        }
+        catch (Exception e)
+        {
+            var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
+            return BadRequest(response);
+        }
+    }
+
+    /// <summary>
+    /// Getting user's files
+    /// </summary>
+    /// <param name="userId">user's id</param>
+    /// <returns>List of user's files</returns>
+    [Route("/getuserfiles")]
+    [HttpPost]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<Response>> GetUserFiles(ulong userId)
+    {
+        try
+        {
+            var userFiles = _fileService.GetUserFiles(userId);
+
+            var dataEntry = new DataEntry<UserFile[]>()
+            {
+                Data = userFiles,
+                Type = "filearray"
+            };
+
+            var response = new Response
+            {
+                Data = new DataEntry<UserFile[]>[] { dataEntry }
+            };
+            return response;
+        }
+        catch (Exception e)
+        {
+            var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
             return BadRequest(response);
         }
     }

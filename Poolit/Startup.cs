@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Converters;
 using Poolit.Services;
 using Poolit.Services.Interfaces;
 
@@ -36,9 +37,9 @@ public class Startup
             options.IncludeXmlComments(filePath);
         });
 
-        //services.AddControllers().AddNewtonsoftJson(options =>
-        //options.SerializerSettings.Converters.Add(new StringEnumConverter()));
-        //services.AddControllers().AddNewtonsoftJson();
+        services.AddControllers().AddNewtonsoftJson(options =>
+       options.SerializerSettings.Converters.Add(new StringEnumConverter()));
+        services.AddControllers().AddNewtonsoftJson();
 
         services.Configure<IISServerOptions>(options =>
         {
