@@ -1,4 +1,22 @@
-using Amazon;
+namespace Poolit;
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        CreateHostBuilder(args).Build().Run();
+    }
+
+    public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<Startup>();
+            });
+}
+
+
+/*using Amazon;
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.Runtime;
 using Amazon.Runtime.Endpoints;

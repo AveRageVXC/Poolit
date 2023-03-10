@@ -1,16 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-    <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-    </PropertyGroup>
-
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>2baa764c-92d4-473d-ba1e-407ca97b526d</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+  </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.4" />
         <PackageReference Include="AWSSDK.S3" Version="3.7.103.10" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.1" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+        <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -20,5 +22,5 @@
     <ItemGroup>
       <ProjectReference Include="..\S3ClassLibrary\S3ClassLibrary.csproj" />
     </ItemGroup>
-
+    
 </Project>
