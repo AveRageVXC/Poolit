@@ -2,7 +2,6 @@
 
 namespace Poolit.Models;
 
-[Serializable]
 public class Response
 {
     private IDataEntry[] _data;
@@ -10,10 +9,7 @@ public class Response
     [JsonProperty("data")]
     public IDataEntry[] Data
     {
-        get
-        {
-            return _data;
-        }
+        get => _data;
         set
         {
             _data = value;

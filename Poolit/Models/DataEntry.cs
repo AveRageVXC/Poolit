@@ -2,7 +2,6 @@
 
 namespace Poolit.Models;
 
-[Serializable]
 public class DataEntry<T> : IDataEntry
 {
     [JsonProperty("id")]

@@ -1,8 +1,8 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Poolit.Models;
 using Poolit.Services;
-using Poolit.Repositories;
 
 namespace Poolit.Controllers;
 
@@ -38,16 +38,18 @@ public class UserController : ControllerBase
             user.HashedPassword = hashedPassword;
             user.Id = 0;
             user.Token = _userService.CreateToken(user);
-            var dataEntry = new DataEntry<User>();
-            dataEntry.Data = user;
-            dataEntry.Type = "user";
+            var dataEntry = new DataEntry<User>()
+            {
+                Data = user,
+                Type = "user"
+            };
             var response = new Response
             {
                 Data = new DataEntry<User>[] { dataEntry }
             };
             return response;
         }
-        catch (Exception e)
+        catch (Exception)
         {
             var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
             return BadRequest(response);
@@ -65,16 +67,12 @@ public class UserController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Response>> Login(string login, string password, string? token)
+    public async Task<ActionResult<Response>> Login(string login, string password)
     {
         try
         {
-            if (token?.Length > 0)
-            {
-                // check if token is correct
-            }
-
             var id = 0;
+
             // login: w, password: w
             var hashedPassword = "AQAAAAIAAYagAAAAENBPS1G889jxdh2gdddLCvhEA7gbyF2Jb7MsxOXKkiXWGzcYj9/Z4bfzQi/FTXrv6A==";
             var user = new User { Login = login, HashedPassword = hashedPassword };
@@ -101,19 +99,46 @@ public class UserController : ControllerBase
                 Data = new DataEntry<User>[] { dataEntry },
             };
         }
-        catch (Exception e)
+        catch (Exception)
         {
             var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
             return BadRequest(response);
         }
     }
 
-    [Route("/test")]
-    [HttpPost]
-    public IActionResult Test(string n, string h)
+    /// <summary>
+    /// Getting user by login
+    /// </summary>
+    /// <param name="login">User's login</param>
+    /// <returns>User</returns>
+    [Route("/get-user-by-login")]
+    [HttpPost, Authorize]
+    [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<Response>> GetUserByLogin(string login)
     {
-        var x = new UserRepo();
-        x.CreateUser(n, h);
-        return Ok();
+        try
+        {
+            var id = 0;
+            var user = _userService.GetUserByLogin(login);
+            user.Token = Request.Headers.Authorization.ToString().Split(' ')[1];
+            user.Id = id;
+
+            var dataEntry = new DataEntry<User>()
+            {
+                Data = user,
+                Type = "user"
+            };
+
+            return new Response
+            {
+                Data = new DataEntry<User>[] { dataEntry },
+            };
+        }
+        catch (Exception e)
+        {
+            var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
+            return BadRequest(response);
+        }
     }
 }
