@@ -1,9 +1,12 @@
-using Dapper;
-using Poolit.Handlers;
+using Poolit.Models;
 
 namespace Poolit.Repositories;
 
-internal interface IUserRepo
+public interface IUserRepo
 {
-    public void CreateUser(string username, string passwordHash);
+    bool ValidUsername(string username);
+    bool IdExists(int id);
+    void SaveUser(User user);
+    User GetUserByUsername(string username);
+    User GetUserById(int id);
 }

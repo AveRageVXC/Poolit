@@ -21,7 +21,7 @@ public class CreateFileTable : Migration
         CREATE TABLE {FileTable} (
             {FileId} SERIAL PRIMARY KEY,
             {FileName} VARCHAR(255) NOT NULL,
-            {Description} TEXT NOT NULL,
+            {Description} TEXT,
             {CreationDate} TIMESTAMP WITH TIME ZONE NOT NULL,
             {Size} INT NOT NULL,
             {OwnerId} INT NOT NULL REFERENCES {UserTable}({UserId}) ON UPDATE CASCADE,

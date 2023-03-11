@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Reflection.Metadata;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Poolit.Configurations;
@@ -7,16 +8,34 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Poolit.Repositories;
 
 namespace Poolit.Services;
 
 public class UserService : IUserService
 {
     private IOptions<JwtConfiguration> _jwtConfiguration;
+    private IUserRepo _userRepo;
 
-    public UserService(IOptions<JwtConfiguration> jwtConfiguration)
+    public UserService(IOptions<JwtConfiguration> jwtConfiguration, IUserRepo userRepo)
     {
         _jwtConfiguration = jwtConfiguration;
+        _userRepo = userRepo;
+    }
+
+    public bool CanCreate(User user)
+    {
+        return _userRepo.ValidUsername(user.Username);
+    }
+
+    public bool IdExists(int id)
+    {
+        return _userRepo.IdExists(id);
+    }
+
+    public void SaveUser(User user)
+    {
+        _userRepo.SaveUser(user);
     }
 
     public void AssignPasswordHash(User user, string password)
@@ -33,12 +52,12 @@ public class UserService : IUserService
 
     public User GetUserByUsername(string username)
     {
-        return new User { Username = username };
+        return _userRepo.GetUserByUsername(username);
     }
 
     public User GetUserById(int id)
     {
-        return new User { Id = id, Username = "" };
+        return _userRepo.GetUserById(id);
     }
     
     public string CreateToken(User user)

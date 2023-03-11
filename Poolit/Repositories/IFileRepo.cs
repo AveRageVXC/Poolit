@@ -1,10 +1,11 @@
-﻿using Poolit.Models;
+using Poolit.Models;
 
-namespace Poolit.Services;
+namespace Poolit.Repositories;
 
-public interface IFileService
+public interface IFileRepo
 {
-    // Внутри создаётся ранд poolitKey и s3 key
+    bool ValidS3Key(string S3Key);
+    bool ValidPoolitKey(string PoolitKey);
     void SaveFile(FileEntity file, List<int> accessEnabledUserIds);
     List<FileEntity> GetAvailableFiles(int userId);
     FileEntity GetFileById(int fileId);
