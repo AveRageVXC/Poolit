@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Poolit.Models;
 using Poolit.Services;
+using Poolit.Repositories;
 
 namespace Poolit.Controllers;
 
@@ -105,5 +106,14 @@ public class UserController : ControllerBase
             var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
             return BadRequest(response);
         }
+    }
+
+    [Route("/test")]
+    [HttpPost]
+    public IActionResult Test(string n, string h)
+    {
+        var x = new UserRepo();
+        x.CreateUser(n, h);
+        return Ok();
     }
 }

@@ -16,5 +16,5 @@ dotnet run --project DBMigrations Development
 
 Запуск бекенда:
 ```
-
+dotnet run --project Poolit
 ```
