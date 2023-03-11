@@ -27,4 +27,9 @@ public class FileService : IFileService
         // Пиши репозитории, Глеб
         throw new NotImplementedException();
     }
+
+    public bool DeleteFile(int fileId)
+    {
+        throw new NotImplementedException();
+    }
 }
