@@ -63,11 +63,11 @@ public class UserController : ControllerBase
     /// <param name="password">User's password.</param>
     /// <param name="token">User's token.</param>
     /// <returns>User</returns>
-    [Route("/username")]
+    [Route("/login")]
     [HttpPost]
     [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Response>> Username(string username, string password)
+    public async Task<ActionResult<Response>> Login(string username, string password)
     {
         try
         {

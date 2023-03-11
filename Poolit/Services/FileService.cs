@@ -6,7 +6,7 @@ namespace Poolit.Services;
 
 public class FileService : IFileService
 {
-    public string GetFileUrlById(int id)
+    public string GetFileS3Key(int id)
     {
         // Опа, из репозитория достается ссылка на файл по его id.
         var fileName = $"{id}.png";

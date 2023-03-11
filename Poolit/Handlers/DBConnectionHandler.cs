@@ -1,6 +1,5 @@
 using System.Data;
 using Npgsql;
-using Dapper;
 
 namespace Poolit.Handlers;
 

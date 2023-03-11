@@ -10,6 +10,4 @@ public class User
     public string Username { get; set; }
     [JsonIgnore]
     public string HashedPassword { get; set; }
-    [JsonProperty("token")]
-    public string Token { get; set; }
 }
