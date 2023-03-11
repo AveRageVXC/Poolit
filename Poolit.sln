@@ -1,6 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poolit", "Poolit\Poolit.csproj", "{4F36A9B7-CB83-42D2-96A8-F0DB46FC1455}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poolit", "Poolit\Poolit.csproj", "{2D5CF3C3-0BA0-4807-A940-EA6491CB1F07}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "S3Manager", "S3Manager\S3Manager.csproj", "{3778A7C4-AE4C-44F7-B2C6-3C43B132B0F9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -8,19 +13,19 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{4F36A9B7-CB83-42D2-96A8-F0DB46FC1455}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4F36A9B7-CB83-42D2-96A8-F0DB46FC1455}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4F36A9B7-CB83-42D2-96A8-F0DB46FC1455}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4F36A9B7-CB83-42D2-96A8-F0DB46FC1455}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4006A4FF-8FCE-47E1-AF49-AB5A65986F20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-        		{4006A4FF-8FCE-47E1-AF49-AB5A65986F20}.Debug|Any CPU.Build.0 = Debug|Any CPU
-        		{4006A4FF-8FCE-47E1-AF49-AB5A65986F20}.Release|Any CPU.ActiveCfg = Release|Any CPU
-        		{4006A4FF-8FCE-47E1-AF49-AB5A65986F20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D5CF3C3-0BA0-4807-A940-EA6491CB1F07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D5CF3C3-0BA0-4807-A940-EA6491CB1F07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D5CF3C3-0BA0-4807-A940-EA6491CB1F07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D5CF3C3-0BA0-4807-A940-EA6491CB1F07}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3778A7C4-AE4C-44F7-B2C6-3C43B132B0F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3778A7C4-AE4C-44F7-B2C6-3C43B132B0F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3778A7C4-AE4C-44F7-B2C6-3C43B132B0F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3778A7C4-AE4C-44F7-B2C6-3C43B132B0F9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
-        HideSolutionNode = FALSE
-    EndGlobalSection
-    GlobalSection(ExtensibilityGlobals) = postSolution
-        SolutionGuid = {A2ABD513-082E-4245-BF72-BE748AF0D2F6}
-    EndGlobalSection
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A2ABD513-082E-4245-BF72-BE748AF0D2F6}
+	EndGlobalSection
 EndGlobal
