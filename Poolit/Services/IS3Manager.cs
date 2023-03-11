@@ -5,5 +5,5 @@ namespace Poolit.Services;
 public interface IS3Manager
 {
     Task PutFileAsync(Stream fileStream, string key);
-    Task<GetObjectResponse> GetObjectAsync(string key);
+    Task<GetObjectResponse> GetFileAsync(string key);
 }

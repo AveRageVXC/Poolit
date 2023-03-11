@@ -34,10 +34,9 @@ public class UserController : ControllerBase
         try
         {
             var user = new User { Username = username };
-            var hashedPassword = _userService.HashPassword(user, password);
-            user.HashedPassword = hashedPassword;
+            _userService.AssignPasswordHash(user, password);
             user.Id = 0;
-            user.Token = _userService.CreateToken(user);
+            Response.Headers.Add("token", _userService.CreateToken(user));
             var dataEntry = new DataEntry<User>()
             {
                 Data = user,
@@ -78,7 +77,7 @@ public class UserController : ControllerBase
             var user = new User { Username = username, HashedPassword = hashedPassword };
             user.Id = id;
 
-            if (_userService.VerifyPassword(user, hashedPassword, password) is false)
+            if (_userService.VerifyPassword(user, password) is false)
             {
                 return new Response
                 {
@@ -86,7 +85,7 @@ public class UserController : ControllerBase
                 };
             }
 
-            user.Token = _userService.CreateToken(user);
+            Response.Headers.Add("token", _userService.CreateToken(user));
 
             var dataEntry = new DataEntry<User>()
             {
@@ -119,10 +118,7 @@ public class UserController : ControllerBase
     {
         try
         {
-            var id = 0;
             var user = _userService.GetUserByUsername(username);
-            user.Token = Request.Headers.Authorization.ToString().Split(' ')[1];
-            user.Id = id;
 
             var dataEntry = new DataEntry<User>()
             {

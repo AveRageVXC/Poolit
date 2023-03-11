@@ -57,4 +57,11 @@ public class UserService : IUserService
         var handler = new JwtSecurityTokenHandler().WriteToken(token);
         return handler;
     }
+
+    public int GetIdFromToken(string token)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jwtSecurityToken = handler.ReadJwtToken(token);
+        return int.Parse(jwtSecurityToken.Claims.First(claim => claim.Type == ClaimTypes.UserData).Value);
+    }
 }

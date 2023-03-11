@@ -39,7 +39,7 @@ public class S3Manager : IS3Manager
         }
     }
     
-    public async Task PutObjectAsync(Stream file, string key)
+    public async Task PutFileAsync(Stream file, string key)
     {
         var putObjectRequest = new PutObjectRequest
         {
@@ -84,7 +84,7 @@ public class S3Manager : IS3Manager
     /// Не проверено
     /// </summary>
     /// <param name="key"></param>
-    public async Task<GetObjectResponse> GetObjectAsync(string key)
+    public async Task<GetObjectResponse> GetFileAsync(string key)
     {
         var getObjectRequest = new GetObjectRequest
         {

@@ -12,4 +12,5 @@ public interface IUserService
     User GetUserByUsername(string username);
 
     string CreateToken(User user);
+    int GetIdFromToken(string token);
 }
