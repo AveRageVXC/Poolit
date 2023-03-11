@@ -13,11 +13,13 @@ public class FileController : Controller
 {
     private readonly IFileService _fileService;
     private readonly ILogger<FileController> _logger;
+    private readonly IS3Manager S3Manager;
 
-    public FileController(IFileService fileService, ILogger<FileController> logger)
+    public FileController(IFileService fileService, ILogger<FileController> logger, IS3Manager s3Manager)
     {
         _fileService = fileService;
         _logger = logger;
+        S3Manager = s3Manager;
     }
 
     /// <summary>
@@ -38,6 +40,7 @@ public class FileController : Controller
             using (var fileStream = new FileStream(path, FileMode.Create))
             {
                 await file.CopyToAsync(fileStream);
+                await S3Manager.PutObjectAsync(fileStream, "1");
             }
 
             var dataEntry = new DataEntry<string>()
@@ -50,6 +53,7 @@ public class FileController : Controller
             {
                 Data = new DataEntry<string>[] { dataEntry }
             };
+            
             return response;
         }
         catch (Exception e)
@@ -57,6 +61,7 @@ public class FileController : Controller
             var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
             return BadRequest(response);
         }
+        
     }
 
     /// <summary>

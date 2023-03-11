@@ -22,7 +22,7 @@ public class Startup
     {
         services.AddSingleton<IUserService, UserService>();
         services.AddSingleton<IFileService, FileService>();
-
+        services.AddSingleton<IS3Manager, S3Manager>();
         services.AddEndpointsApiExplorer();
 
         services.AddSwaggerGen(options =>
@@ -33,8 +33,8 @@ public class Startup
                 Version = "v1",
                 Description = "API",
             });
-            var filePath = Path.Combine(AppContext.BaseDirectory, "Poolit.xml");
-            options.IncludeXmlComments(filePath);
+            /*var filePath = Path.Combine(AppContext.BaseDirectory, "Poolit.xml");
+            options.IncludeXmlComments(filePath);*/
         });
 
         services.AddControllers().AddNewtonsoftJson(options =>
@@ -53,9 +53,9 @@ public class Startup
             x.MultipartHeadersLengthLimit = int.MaxValue;
         });
         services.AddMvc();
-
         services.Configure<TokensConfiguration>(Configuration.GetSection("Tokens"));
-
+        services.Configure<S3Configuration>(Configuration.GetSection("AWS"));
+        
         //services.AddSwaggerGenNewtonsoftSupport();
         //   services.Configure<Configuration>(Configuration.GetSection("ConnectionStrings"));
         /*if (InDocker)
@@ -70,6 +70,10 @@ public class Startup
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
+        
+        
+        
+        
         if (env.IsDevelopment() || env.IsProduction())
         {
             app.UseSwagger();
