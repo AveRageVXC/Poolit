@@ -26,7 +26,7 @@ public class Startup
     {
         services.AddSingleton<IUserService, UserService>();
         services.AddSingleton<IFileService, FileService>();
-
+        services.AddSingleton<IS3Manager, S3Manager>();
         services.AddEndpointsApiExplorer();
 
         services.AddSwaggerGen(options =>
@@ -68,6 +68,8 @@ public class Startup
 
         services.AddMvc();
 
+        services.Configure<S3Configuration>(Configuration.GetSection("AWS"));
+
         services.Configure<JwtConfiguration>(Configuration.GetSection(nameof(JwtConfiguration)));
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -102,6 +104,10 @@ public class Startup
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
+        
+        
+        
+        
         if (env.IsDevelopment() || env.IsProduction())
         {
             app.UseSwagger();

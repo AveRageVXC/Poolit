@@ -14,11 +14,13 @@ public class FileController : Controller
 {
     private readonly IFileService _fileService;
     private readonly ILogger<FileController> _logger;
+    private readonly IS3Manager S3Manager;
 
-    public FileController(IFileService fileService, ILogger<FileController> logger)
+    public FileController(IFileService fileService, ILogger<FileController> logger, IS3Manager s3Manager)
     {
         _fileService = fileService;
         _logger = logger;
+        S3Manager = s3Manager;
     }
 
     /// <summary>
@@ -35,11 +37,15 @@ public class FileController : Controller
     {
         try
         {
-            string path = "./" + file.FileName;
-            using (var fileStream = new FileStream(path, FileMode.Create))
+            using var ms = new MemoryStream();
+            if (file.Length > 0)
             {
-                await file.CopyToAsync(fileStream);
+                file.CopyTo(ms);
+                var fileBytes = ms.ToArray();
+                string s = Convert.ToBase64String(fileBytes);
             }
+            var path = $"id";
+            await S3Manager.PutObjectAsync(ms, "1");
 
             var dataEntry = new DataEntry<string>()
             {
@@ -51,6 +57,7 @@ public class FileController : Controller
             {
                 Data = new DataEntry<string>[] { dataEntry }
             };
+
             return response;
         }
         catch (Exception)
@@ -58,6 +65,7 @@ public class FileController : Controller
             var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
             return BadRequest(response);
         }
+
     }
 
     /// <summary>
@@ -74,6 +82,11 @@ public class FileController : Controller
         try
         {
             var url = _fileService.GetFileUrlById(id);
+            var S3Object = await S3Manager.GetObjectAsync($"{id}");
+
+            var stream = S3Object.ResponseStream;
+            var contentType = S3Object.Headers.ContentType;
+            var fileName = $"{id}.pdf";
 
             var dataEntry = new DataEntry<string>()
             {
@@ -85,7 +98,7 @@ public class FileController : Controller
             {
                 Data = new DataEntry<string>[] { dataEntry }
             };
-            return response;
+            return File(stream, contentType, fileName);
         }
         catch (Exception)
         {
