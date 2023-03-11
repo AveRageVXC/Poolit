@@ -4,7 +4,7 @@ namespace Poolit.Services;
 
 public interface IUserService
 {
-    bool CanCreate(User user);
+    bool CanSave(User user);
     bool IdExists(int id);
     void SaveUser(User user);
     void AssignPasswordHash(User user, string password);

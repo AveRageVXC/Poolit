@@ -1,14 +1,12 @@
-﻿using System.Reflection.Metadata;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Poolit.Configurations;
 using Poolit.Models;
+using Poolit.Repositories;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
-using Poolit.Repositories;
 
 namespace Poolit.Services;
 
@@ -23,20 +21,15 @@ public class UserService : IUserService
         _userRepo = userRepo;
     }
 
-    public bool CanCreate(User user)
-    {
-        return _userRepo.ValidUsername(user.Username);
-    }
+    public bool CanSave(User user)
+        => _userRepo.ValidUsername(user.Username);
 
     public bool IdExists(int id)
-    {
-        return _userRepo.IdExists(id);
-    }
+        => _userRepo.IdExists(id);
 
     public void SaveUser(User user)
-    {
-        _userRepo.SaveUser(user);
-    }
+        => _userRepo.SaveUser(user);
+
 
     public void AssignPasswordHash(User user, string password)
     {
@@ -59,7 +52,7 @@ public class UserService : IUserService
     {
         return _userRepo.GetUserById(id);
     }
-    
+
     public string CreateToken(User user)
     {
         List<Claim> claims = new List<Claim> {

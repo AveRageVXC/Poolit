@@ -2,8 +2,7 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.Extensions.Options;
-using Poolit.Models;
-using Poolit.Services;
+using Poolit.Configurations;
 
 namespace Poolit.Services;
 
@@ -38,7 +37,7 @@ public class S3Manager : IS3Manager
             S3Client.PutBucketAsync(BucketName);
         }
     }
-    
+
     public async Task PutFileAsync(Stream file, string key)
     {
         var putObjectRequest = new PutObjectRequest

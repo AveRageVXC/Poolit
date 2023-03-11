@@ -1,4 +1,4 @@
-﻿namespace Poolit;
+﻿namespace Poolit.Configurations;
 
 public class S3Configuration
 {

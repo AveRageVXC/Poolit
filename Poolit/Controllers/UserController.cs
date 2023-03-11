@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Poolit.Models;
 using Poolit.Services;
@@ -33,16 +32,23 @@ public class UserController : ControllerBase
     {
         try
         {
+            Response response;
             var user = new User { Username = username };
+            if (_userService.CanSave(user) is false)
+            {
+                response = new Response { Error = "User with this name already exists." };
+                return BadRequest(response);
+            }
             _userService.AssignPasswordHash(user, password);
-            user.Id = 0;
+            _userService.SaveUser(user);
             Response.Headers.Add("token", _userService.CreateToken(user));
+
             var dataEntry = new DataEntry<User>()
             {
                 Data = user,
                 Type = "user"
             };
-            var response = new Response
+            response = new Response
             {
                 Data = new DataEntry<User>[] { dataEntry }
             };
@@ -70,18 +76,23 @@ public class UserController : ControllerBase
     {
         try
         {
-            var id = 0;
+            var user = new User { Username = username };
 
-            // username: w, password: w
-            var hashedPassword = "AQAAAAIAAYagAAAAENBPS1G889jxdh2gdddLCvhEA7gbyF2Jb7MsxOXKkiXWGzcYj9/Z4bfzQi/FTXrv6A==";
-            var user = new User { Username = username, HashedPassword = hashedPassword };
-            user.Id = id;
+            if (_userService.CanSave(user))
+            {
+                return new Response
+                {
+                    Error = "Wrong username or password."
+                };
+            }
+            
+            user = _userService.GetUserByUsername(username);
 
             if (_userService.VerifyPassword(user, password) is false)
             {
                 return new Response
                 {
-                    Error = "Wrong username or password"
+                    Error = "Wrong username or password."
                 };
             }
 
@@ -98,7 +109,7 @@ public class UserController : ControllerBase
                 Data = new DataEntry<User>[] { dataEntry },
             };
         }
-        catch (Exception)
+        catch
         {
             var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
             return BadRequest(response);
@@ -118,7 +129,14 @@ public class UserController : ControllerBase
     {
         try
         {
-            var user = _userService.GetUserByUsername(username);
+            var user = new User { Username = username };
+            if (_userService.CanSave(user))
+            {
+                var response = new Response { Error = "No user with this user name." };
+                return BadRequest(response);
+            }
+
+            user = _userService.GetUserByUsername(username);
 
             var dataEntry = new DataEntry<User>()
             {

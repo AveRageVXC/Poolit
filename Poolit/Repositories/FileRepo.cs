@@ -1,7 +1,6 @@
-using Poolit.Models;
-using Poolit.Handlers;
 using Dapper;
-using System.Collections.Generic;
+using Poolit.Handlers;
+using Poolit.Models;
 
 namespace Poolit.Repositories;
 
@@ -33,21 +32,23 @@ public class FileRepo : IFileRepo
     {
         using var connection = DBConnectionHandler.Connection;
 
-        connection.Execute(@"
+        var fileId = connection.ExecuteScalar<int>(@"
         INSERT INTO ""File"" (file_name, description, creation_date, size, owner_id, s3_key, poolit_key)
-        VALUES (@fileName, @description, @creationDate, @size, @ownerId, @s3Key, @poolitKey);
-        ", 
-        new {
+        VALUES (@fileName, @description, @creationDate, @size, @ownerId, @s3Key, @poolitKey)
+        RETURNING file_id;
+        ",
+        new
+        {
             fileName = file.Name,
             description = file.Description,
-            creationDate = file.CreationDate.ToString("yyyy-MM-dd HH:mm:ss"),
-            size=file.Size,
+            creationDate = file.CreationDate,
+            size = file.Size,
             ownerId = file.OwnerId,
             s3Key = file.S3Key,
             poolitKey = file.PoolitKey
         });
 
-        var fileId = GetFileByPoolitKey(file.PoolitKey).Id;
+        file.Id = fileId;
 
         accessEnabledUserIds.Append(file.OwnerId);
         foreach (var userId in accessEnabledUserIds.Distinct())
@@ -67,7 +68,15 @@ public class FileRepo : IFileRepo
     public List<FileEntity> GetAvailableFiles(int userId)
     {
         var files = DBConnectionHandler.Connection.Query<FileEntity>(@"
-        SELECT *
+        SELECT
+            f.file_id AS Id,
+            f.file_name AS Name,
+            f.description,
+            f.creation_date AS CreationDate,
+            f.size,
+            f.owner_id AS OwnerId,
+            f.s3_key AS S3Key,
+            f.poolit_key AS PoolitKey
         FROM ""File"" as f, ""User_File"" as u_f
         WHERE u_f.user_id = @userId
             AND  u_f.file_id = f.file_id
@@ -80,7 +89,16 @@ public class FileRepo : IFileRepo
     public FileEntity GetFileById(int fileId)
     {
         var file = DBConnectionHandler.Connection.ExecuteScalar<FileEntity>(@"
-        SELECT * FROM ""File""
+        SELECT
+            file_id AS Id,
+            file_name AS FileName,
+            description,
+            creation_date AS CreationDate,
+            size,
+            owner_id AS OwnerId,
+            s3_key AS S3Key,
+            poolit_key AS PoolitKey
+        FROM ""File""
         WHERE file_id=@fileId;
         ",
         new { fileId });
@@ -90,8 +108,17 @@ public class FileRepo : IFileRepo
 
     public FileEntity GetFileByPoolitKey(string poolitKey)
     {
-        var file = DBConnectionHandler.Connection.ExecuteScalar<FileEntity>(@"
-        SELECT * FROM ""File""
+        var file = DBConnectionHandler.Connection.QueryFirst<FileEntity>(@"
+        SELECT
+            file_id AS Id,
+            file_name AS FileName,
+            description,
+            creation_date AS CreationDate,
+            size,
+            owner_id AS OwnerId,
+            s3_key AS S3Key,
+            poolit_key AS PoolitKey
+        FROM ""File""
         WHERE poolit_key=@poolitKey;
         ",
         new { poolitKey });

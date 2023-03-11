@@ -30,21 +30,27 @@ internal class UserRepo : IUserRepo
 
     public void SaveUser(User user)
     {
-        DBConnectionHandler.Connection.Execute(@"
+        var userId = DBConnectionHandler.Connection.ExecuteScalar<int>(@"
         INSERT INTO ""User"" (username, password_hash)
-        VALUES (@username, @passwordHash);
+        VALUES (@username, @passwordHash)
+        RETURNING user_id;
         ",
         new
         {
-            username = user,
+            username = user.Username,
             passwordHash = user.HashedPassword
         });
+        user.Id = userId;
     }
 
     public User GetUserByUsername(string username)
     {
-        var user = DBConnectionHandler.Connection.ExecuteScalar<User>(@"
-        SELECT * FROM ""User""
+        var user = DBConnectionHandler.Connection.QueryFirst<User>(@"
+        SELECT
+            user_id AS id,
+            username,
+            password_hash AS hashedpassword
+        FROM ""User""
         WHERE username=@username;
         ",
         new { username });

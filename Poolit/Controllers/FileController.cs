@@ -1,13 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Poolit.Models;
-using Microsoft.Net.Http.Headers;
-using Microsoft.AspNetCore.StaticFiles;
-using System.Net.Mime;
 using Poolit.Services;
-using Microsoft.AspNetCore.Authorization;
-using Newtonsoft.Json.Linq;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+using System.Collections;
 
 namespace Poolit.Controllers;
 
@@ -38,10 +34,11 @@ public class FileController : Controller
     [HttpPost, Authorize]
     [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Response>> Upload(IFormFile formFile, List<int> accessEnabledUserIds)
+    public async Task<ActionResult<Response>> Upload(IFormFile formFile, string accessEnabledUserIds)
     {
         try
         {
+            var ids = JsonConvert.DeserializeObject<List<int>>(accessEnabledUserIds);
             using var ms = new MemoryStream();
             if (formFile.Length > 0)
             {
@@ -50,10 +47,18 @@ public class FileController : Controller
                 string s = Convert.ToBase64String(fileBytes);
             }
 
-            var newFile = new FileEntity { };
-            var userId = _userService.GetIdFromToken(Response.Headers["token"]);
+            Request.Headers.TryGetValue("Authorization", out var tokenHeader);
+            var token = tokenHeader[0].Split(' ')[1];
+            var userId = _userService.GetIdFromToken(token);
+            var newFile = new FileEntity
+            {
+                Name = formFile.Name,
+                CreationDate = DateTime.Now,
+                Size = (int)ms.Length,
+                OwnerId = userId
+            };
 
-            _fileService.AddFile(newFile, userId, accessEnabledUserIds);
+            _fileService.SaveFile(newFile, ids);
 
             var path = $"id";
             await S3Manager.PutFileAsync(ms, newFile.S3Key);
@@ -97,10 +102,10 @@ public class FileController : Controller
             var S3Object = await S3Manager.GetFileAsync(file.S3Key);
 
             var stream = S3Object.ResponseStream;
-            var contentType = S3Object.Headers.ContentType;
+            var contentType = S3Object.Metadata;
             var fileName = file.Name;
 
-            return File(stream, contentType, fileName);
+            return File(stream, "pdf", fileName);
         }
         catch (Exception)
         {
@@ -124,15 +129,11 @@ public class FileController : Controller
         {
             var userFiles = _fileService.GetAvailableFiles(userId);
 
-            var dataEntry = new DataEntry<FileEntity[]>()
-            {
-                Data = userFiles,
-                Type = "filearray"
-            };
+            var files = userFiles.Select(f => new DataEntry<FileEntity> { Type = "file", Data = f }).ToArray();
 
             var response = new Response
             {
-                Data = new DataEntry<FileEntity[]>[] { dataEntry }
+                Data = files
             };
             return response;
         }

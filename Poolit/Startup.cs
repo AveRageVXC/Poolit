@@ -1,15 +1,12 @@
-using System.Data.Common;
-using Microsoft.AspNetCore.Http.Features;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Poolit.Configurations;
-using Poolit.Services;
 using Poolit.Handlers;
+using Poolit.Repositories;
+using Poolit.Services;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text;
 
@@ -23,7 +20,6 @@ public class Startup
     public Startup(IConfiguration configuration)
     {
         Configuration = configuration;
-        DBConnectionHandler.ConnectionString = configuration.GetConnectionString("Postgres");
     }
 
     public IConfiguration Configuration { get; }
@@ -33,6 +29,8 @@ public class Startup
         services.AddSingleton<IUserService, UserService>();
         services.AddSingleton<IFileService, FileService>();
         services.AddSingleton<IS3Manager, S3Manager>();
+        services.AddSingleton<IFileRepo, FileRepo>();
+        services.AddSingleton<IUserRepo, UserRepo>();
         services.AddEndpointsApiExplorer();
 
         services.AddSwaggerGen(options =>
@@ -75,6 +73,8 @@ public class Startup
 
         services.AddMvc();
 
+        DBConnectionHandler.ConnectionString = Configuration.GetConnectionString("Postgres");
+
         services.Configure<S3Configuration>(Configuration.GetSection("AWS"));
 
         services.Configure<JwtConfiguration>(Configuration.GetSection(nameof(JwtConfiguration)));
@@ -96,7 +96,8 @@ public class Startup
                 };
                 options.Events = new JwtBearerEvents
                 {
-                    OnAuthenticationFailed = context => {
+                    OnAuthenticationFailed = context =>
+                    {
                         if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
                         {
                             context.Response.Headers.Add("IS-TOKEN-EXPIRED", "true");
@@ -111,10 +112,6 @@ public class Startup
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
-        
-        
-        
-        
         if (env.IsDevelopment() || env.IsProduction())
         {
             app.UseSwagger();
