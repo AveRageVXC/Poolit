@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Poolit.Models;
 using Poolit.Services;
-using Poolit.Services.Interfaces;
 
 namespace Poolit.Controllers;
 

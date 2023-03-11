@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Http.Features;
+﻿using System.Data.Common;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Poolit.Services;
-using Poolit.Services.Interfaces;
+using Poolit.Handlers;
 
 namespace Poolit;
 
@@ -16,6 +17,7 @@ public class Startup
     public Startup(IConfiguration configuration)
     {
         Configuration = configuration;
+        DBConnectionHandler.ConnectionString = configuration.GetConnectionString("Postgres");
     }
 
     public IConfiguration Configuration { get; }
