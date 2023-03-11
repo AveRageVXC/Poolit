@@ -34,7 +34,7 @@ public class UserService : IUserService
     public string CreateToken(User user)
     {
         List<Claim> claims = new List<Claim> {
-            new Claim(ClaimTypes.Name, user.Login)
+            new Claim(ClaimTypes.Name, user.Username)
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfiguration.Value.Token));
@@ -48,13 +48,13 @@ public class UserService : IUserService
         return handler;
     }
 
-    public User GetUserByLogin(string login)
+    public User GetUserByUsername(string username)
     {
-        return new User { Login = login };
+        return new User { Username = username };
     }
 
     public User GetUserById(int id)
     {
-        return new User { Id = id, Login = "" };
+        return new User { Id = id, Username = "" };
     }
 }
