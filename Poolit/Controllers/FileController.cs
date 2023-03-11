@@ -26,32 +26,42 @@ public class FileController : Controller
     /// <summary>
     /// File uploading
     /// </summary>
-    /// <param name="file">File to upload.</param>
+    /// <param name="formFile">File to upload.</param>
     /// <param name="id">User's id.</param>
     /// <returns>Url to file</returns>
     [Route("/upload")]
     [HttpPost, Authorize]
     [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Response>> Upload(IFormFile file, int id)
+    public async Task<ActionResult<Response>> Upload(IFormFile formFile, ...)
     {
         try
         {
-            using var ms = new MemoryStream();
-            if (file.Length > 0)
-            {
-                file.CopyTo(ms);
-                var fileBytes = ms.ToArray();
-                string s = Convert.ToBase64String(fileBytes);
-            }
+            // using var ms = new MemoryStream();
+            // if (formFile.Length > 0)
+            // {
+            //     formFile.CopyTo(ms);
+            //     var fileBytes = ms.ToArray();
+            //     string s = Convert.ToBase64String(fileBytes);
+            // }
+
+            var newFile = new FileEntity {};
+            _fileService.AddFile()
+
             var path = $"id";
-            await S3Manager.PutObjectAsync(ms, "1");
+            // await S3Manager.PutObjectAsync(ms, "1");
+            await S3Manager.PutObjectAsync(formFile, newFile.S3Key);
 
             var dataEntry = new DataEntry<string>()
             {
-                Data = path,
-                Type = "string"
+                Type = "file",
+                Data = newFile
             };
+            // var dataEntry = new DataEntry<string>()
+            // {
+            //     Type = "string"
+            //     Data = path,
+            // };
 
             var response = new Response
             {
@@ -77,27 +87,20 @@ public class FileController : Controller
     [HttpPost, Authorize]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Response>> Download(int id)
+    public async Task<ActionResult<Response>> Download(string poolitKey)
     {
         try
         {
-            var url = _fileService.GetFileUrlById(id);
-            var S3Object = await S3Manager.GetObjectAsync($"{id}");
+            var file = _fileService.GetFileByPoolitKey(poolitKey);
+
+
+            // ---
+            var S3Object = await S3Manager.GetObjectAsync(file.S3Key.ToString());
 
             var stream = S3Object.ResponseStream;
             var contentType = S3Object.Headers.ContentType;
-            var fileName = $"{id}.pdf";
+            var fileName = file.Name;
 
-            var dataEntry = new DataEntry<string>()
-            {
-                Data = url,
-                Type = "string"
-            };
-
-            var response = new Response
-            {
-                Data = new DataEntry<string>[] { dataEntry }
-            };
             return File(stream, contentType, fileName);
         }
         catch (Exception)
@@ -116,7 +119,7 @@ public class FileController : Controller
     [HttpPost, Authorize]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Response>> GetUserFiles(int userId)
+    public async Task<ActionResult<Response>> GetAvailableFiles(int userId)
     {
         try
         {

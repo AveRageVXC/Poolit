@@ -1,11 +1,15 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Data.Common;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Poolit.Configurations;
 using Poolit.Services;
+using Poolit.Handlers;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text;
 
@@ -13,11 +17,13 @@ namespace Poolit;
 
 public class Startup
 {
-    private bool InDocker => Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+    private bool InDocker
+        => Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
 
     public Startup(IConfiguration configuration)
     {
         Configuration = configuration;
+        DBConnectionHandler.ConnectionString = configuration.GetConnectionString("Postgres");
     }
 
     public IConfiguration Configuration { get; }
@@ -46,8 +52,9 @@ public class Startup
                 Version = "v1",
                 Description = "API",
             });
-            var filePath = Path.Combine(AppContext.BaseDirectory, "Poolit.xml");
-            options.IncludeXmlComments(filePath);
+            // У меня xml не грузится и выбрасывает ошибку
+            // var filePath = Path.Combine(AppContext.BaseDirectory, "Poolit.xml");
+            // options.IncludeXmlComments(filePath);
         });
 
         services.AddControllers().AddNewtonsoftJson(options =>

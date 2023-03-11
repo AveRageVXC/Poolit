@@ -19,22 +19,32 @@ public class UserService : IUserService
         _jwtConfiguration = jwtConfiguration;
     }
 
-    public string HashPassword(User user, string password)
+    public void AssignPasswordHash(User user, string password)
     {
         var passwordHasher = new PasswordHasher<User>();
-        return passwordHasher.HashPassword(user, password);
+        user.HashedPassword = passwordHasher.HashPassword(user, password);
     }
 
-    public bool VerifyPassword(User user, string hashedPassword, string password)
+    public bool VerifyPassword(User user, string password)
     {
         var passwordHasher = new PasswordHasher<User>();
-        return passwordHasher.VerifyHashedPassword(user, hashedPassword, password) == PasswordVerificationResult.Success;
+        return passwordHasher.VerifyHashedPassword(user, user.HashedPassword, password) is PasswordVerificationResult.Success;
     }
 
+    public User GetUserByUsername(string username)
+    {
+        return new User { Username = username };
+    }
+
+    public User GetUserById(int id)
+    {
+        return new User { Id = id, Username = "" };
+    }
+    
     public string CreateToken(User user)
     {
         List<Claim> claims = new List<Claim> {
-            new Claim(ClaimTypes.Name, user.Login)
+            new Claim(ClaimTypes.UserData, user.Id.ToString())
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfiguration.Value.Token));
@@ -46,15 +56,5 @@ public class UserService : IUserService
 
         var handler = new JwtSecurityTokenHandler().WriteToken(token);
         return handler;
-    }
-
-    public User GetUserByLogin(string login)
-    {
-        return new User { Login = login };
-    }
-
-    public User GetUserById(int id)
-    {
-        return new User { Id = id, Login = "" };
     }
 }

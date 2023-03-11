@@ -6,10 +6,8 @@ public class User
 {
     [JsonProperty("id")]
     public int Id { get; set; }
-    [JsonProperty("login")]
-    public string Login { get; set; }
+    [JsonProperty("username")]
+    public string Username { get; set; }
     [JsonIgnore]
     public string HashedPassword { get; set; }
-    [JsonProperty("token")]
-    public string Token { get; set; }
 }

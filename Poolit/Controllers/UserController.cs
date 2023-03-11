@@ -22,18 +22,18 @@ public class UserController : ControllerBase
     /// <summary>
     /// User signing up.
     /// </summary>
-    /// <param name="login">User's login.</param>
+    /// <param name="username">User's username.</param>
     /// <param name="password">User's password.</param>
     /// <returns>User</returns>
     [Route("/register")]
     [HttpPost]
     [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Response>> Register(string login, string password)
+    public async Task<ActionResult<Response>> Register(string username, string password)
     {
         try
         {
-            var user = new User { Login = login };
+            var user = new User { Username = username };
             var hashedPassword = _userService.HashPassword(user, password);
             user.HashedPassword = hashedPassword;
             user.Id = 0;
@@ -59,7 +59,7 @@ public class UserController : ControllerBase
     /// <summary>
     /// User signing in.
     /// </summary>
-    /// <param name="login">User's login.</param>
+    /// <param name="username">User's username.</param>
     /// <param name="password">User's password.</param>
     /// <param name="token">User's token.</param>
     /// <returns>User</returns>
@@ -67,22 +67,22 @@ public class UserController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Response>> Login(string login, string password)
+    public async Task<ActionResult<Response>> Login(string username, string password)
     {
         try
         {
             var id = 0;
 
-            // login: w, password: w
+            // username: w, password: w
             var hashedPassword = "AQAAAAIAAYagAAAAENBPS1G889jxdh2gdddLCvhEA7gbyF2Jb7MsxOXKkiXWGzcYj9/Z4bfzQi/FTXrv6A==";
-            var user = new User { Login = login, HashedPassword = hashedPassword };
+            var user = new User { Username = username, HashedPassword = hashedPassword };
             user.Id = id;
 
             if (_userService.VerifyPassword(user, hashedPassword, password) is false)
             {
                 return new Response
                 {
-                    Error = "Wrong login or password"
+                    Error = "Wrong username or password"
                 };
             }
 
@@ -107,20 +107,20 @@ public class UserController : ControllerBase
     }
 
     /// <summary>
-    /// Getting user by login
+    /// Getting user by username
     /// </summary>
-    /// <param name="login">User's login</param>
+    /// <param name="username">User's username</param>
     /// <returns>User</returns>
-    [Route("/get-user-by-login")]
+    [Route("/get-user-by-username")]
     [HttpPost, Authorize]
     [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Response>> GetUserByLogin(string login)
+    public async Task<ActionResult<Response>> GetUserByUsername(string username)
     {
         try
         {
             var id = 0;
-            var user = _userService.GetUserByLogin(login);
+            var user = _userService.GetUserByUsername(username);
             user.Token = Request.Headers.Authorization.ToString().Split(' ')[1];
             user.Id = id;
 
