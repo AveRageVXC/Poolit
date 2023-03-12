@@ -10,7 +10,7 @@
   <ItemGroup>
     <None Update="appsettings.Development.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-  </None>
+    </None>
     <None Update="appsettings.Release.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

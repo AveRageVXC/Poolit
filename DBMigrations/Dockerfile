@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /DBMigrations
 COPY . .
-RUN dotnet publish -c Release -o /out
+RUN dotnet publish -o /out
 
 FROM mcr.microsoft.com/dotnet/runtime:6.0 AS release
 WORKDIR /DBMigrations

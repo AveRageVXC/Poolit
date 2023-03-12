@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 
 var environmentName = Environment.GetCommandLineArgs()[1];
+environmentName = "Release";
 IConfigurationRoot? configuration = null;
 try
 {
