@@ -15,7 +15,7 @@ public class FileControllerUnitTests
     public async void Upload_ShouldReturnOkResponse()
     {
         var ms = new MemoryStream();
-        var okResult = await _fileController.Upload(new FormFile(ms, 0, ms.Length, "test", "test"), "[1]");
+        var okResult = await _fileController.Upload(new FormFile(ms, 0, ms.Length, "test", "test"), "name", "desc", "[1]");
         Assert.IsType<ActionResult<Response>>(okResult);
     }
 
@@ -29,7 +29,7 @@ public class FileControllerUnitTests
     [Fact]
     public async void GetAvailableFiles_ShouldReturnOkResponse()
     {
-        var okResult = await _fileController.GetAvailableFiles(1);
+        var okResult = await _fileController.GetAvailableFiles();
         Assert.IsType<ActionResult<Response>>(okResult);
     }
 }
