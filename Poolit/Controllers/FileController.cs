@@ -28,7 +28,7 @@ public class FileController : Controller
     [HttpPost, Authorize]
     [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Response>> Upload(IFormFile formFile, string accessEnabledUserIds)
+    public async Task<ActionResult<Response>> Upload(IFormFile formFile, string fileName, string description, string accessEnabledUserIds)
     {
         try
         {
@@ -46,7 +46,8 @@ public class FileController : Controller
             var userId = _userService.GetIdFromToken(token);
             var newFile = new FileEntity
             {
-                Name = formFile.FileName,
+                Name = fileName,
+                Description = description,
                 ContentType = formFile.ContentType,
                 CreationDate = DateTime.Now,
                 Size = (int)ms.Length,
@@ -90,8 +91,8 @@ public class FileController : Controller
             var S3Object = await S3Manager.GetFileAsync(file.S3Key);
             var stream = S3Object.ResponseStream;
             using var ms = new MemoryStream();
-
             stream.CopyTo(ms);
+
             return File(ms.ToArray(), file.ContentType, file.Name);
         }
         catch
@@ -101,14 +102,17 @@ public class FileController : Controller
         }
     }
 
-    [Route("/get-user-files")]
+    [Route("/get-available-files")]
     [HttpPost, Authorize]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Response>> GetAvailableFiles(int userId)
+    public async Task<ActionResult<Response>> GetAvailableFiles()
     {
         try
         {
+            Request.Headers.TryGetValue("Authorization", out var tokenHeader);
+            var token = tokenHeader[0].Split(' ')[1];
+            var userId = _userService.GetIdFromToken(token);
             var userFiles = _fileService.GetAvailableFiles(userId);
 
             var files = userFiles.Select(f => new DataEntry<FileEntity> { Type = "file", Data = f }).ToArray();

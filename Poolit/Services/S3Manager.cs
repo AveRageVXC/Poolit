@@ -79,10 +79,6 @@ public class S3Manager : IS3Manager
         Console.WriteLine("Положили объект");
     }*/
 
-    /// <summary>
-    /// Не проверено
-    /// </summary>
-    /// <param name="key"></param>
     public async Task<GetObjectResponse> GetFileAsync(string key)
     {
         var getObjectRequest = new GetObjectRequest
