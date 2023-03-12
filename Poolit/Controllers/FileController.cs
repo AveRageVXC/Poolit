@@ -7,7 +7,7 @@ using System.Collections;
 
 namespace Poolit.Controllers;
 
-[Route("[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 public class FileController : Controller
 {

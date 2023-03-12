@@ -5,7 +5,7 @@ using Poolit.Services;
 
 namespace Poolit.Controllers;
 
-[Route("[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 public class UserController : ControllerBase
 {
