@@ -5,9 +5,9 @@ name: .NET
 
 on:
   push:
-    branches: [ "feature/api-unit-tests" ]
+    branches: [ "dev" ]
   pull_request:
-    branches: [ "feature/api-unit-tests" ]
+    branches: [ "dev" ]
 
 jobs:
   build:
