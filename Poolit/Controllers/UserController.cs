@@ -51,9 +51,10 @@ public class UserController : ControllerBase
 
             return Ok(response);
         }
-        catch
+        catch (Exception ex)
         {
             response.Error = "Something went wrong. Please try again later. We are sorry";
+            throw ex;
             return BadRequest(response);
         }
     }
