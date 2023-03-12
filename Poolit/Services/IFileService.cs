@@ -9,4 +9,5 @@ public interface IFileService
     List<FileEntity> GetAvailableFiles(int userId);
     FileEntity GetFileById(int fileId);
     FileEntity GetFileByPoolitKey(string poolitKey);
+    bool DeleteFile(int fileId);
 }

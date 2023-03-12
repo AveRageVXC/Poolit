@@ -67,4 +67,9 @@ public class FileService : IFileService
     {
         return _fileRepo.GetFileByPoolitKey(poolitKey);
     }
+
+    public bool DeleteFile(int fileId)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -117,7 +117,7 @@ public class FileController : Controller
     /// </summary>
     /// <param name="userId">user's id</param>
     /// <returns>List of user's files</returns>
-    [Route("/getuserfiles")]
+    [Route("/get-user-files")]
     [HttpPost, Authorize]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
