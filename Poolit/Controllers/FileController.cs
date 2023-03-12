@@ -52,7 +52,8 @@ public class FileController : Controller
             var userId = _userService.GetIdFromToken(token);
             var newFile = new FileEntity
             {
-                Name = formFile.Name,
+                Name = formFile.FileName,
+                ContentType = formFile.ContentType,
                 CreationDate = DateTime.Now,
                 Size = (int)ms.Length,
                 OwnerId = userId
@@ -60,7 +61,6 @@ public class FileController : Controller
 
             _fileService.SaveFile(newFile, ids);
 
-            var path = $"id";
             await S3Manager.PutFileAsync(ms, newFile.S3Key);
 
             var dataEntry = new DataEntry<FileEntity>()
@@ -98,14 +98,12 @@ public class FileController : Controller
         try
         {
             var file = _fileService.GetFileByPoolitKey(poolitKey);
-
             var S3Object = await S3Manager.GetFileAsync(file.S3Key);
-
             var stream = S3Object.ResponseStream;
-            var contentType = S3Object.Metadata;
-            var fileName = file.Name;
+            using var ms = new MemoryStream();
 
-            return File(stream, "pdf", fileName);
+            stream.CopyTo(ms);
+            return File(ms.ToArray(), file.ContentType, file.Name);
         }
         catch (Exception)
         {

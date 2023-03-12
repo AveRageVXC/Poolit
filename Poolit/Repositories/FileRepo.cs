@@ -33,8 +33,8 @@ public class FileRepo : IFileRepo
         using var connection = DBConnectionHandler.Connection;
 
         var fileId = connection.ExecuteScalar<int>(@"
-        INSERT INTO ""File"" (file_name, description, creation_date, size, owner_id, s3_key, poolit_key)
-        VALUES (@fileName, @description, @creationDate, @size, @ownerId, @s3Key, @poolitKey)
+        INSERT INTO ""File"" (file_name, description, creation_date, size, owner_id, content_type, s3_key, poolit_key)
+        VALUES (@fileName, @description, @creationDate, @size, @ownerId, @contentType, @s3Key, @poolitKey)
         RETURNING file_id;
         ",
         new
@@ -44,6 +44,7 @@ public class FileRepo : IFileRepo
             creationDate = file.CreationDate,
             size = file.Size,
             ownerId = file.OwnerId,
+            contentType = file.ContentType,
             s3Key = file.S3Key,
             poolitKey = file.PoolitKey
         });
@@ -113,7 +114,7 @@ public class FileRepo : IFileRepo
         var file = DBConnectionHandler.Connection.QueryFirst<FileEntity>(@"
         SELECT
             file_id AS Id,
-            file_name AS FileName,
+            file_name AS Name,
             description,
             creation_date AS CreationDate,
             size,
