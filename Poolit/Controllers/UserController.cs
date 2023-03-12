@@ -18,12 +18,6 @@ public class UserController : ControllerBase
         _logger = logger;
     }
 
-    /// <summary>
-    /// User signing up.
-    /// </summary>
-    /// <param name="username">User's username.</param>
-    /// <param name="password">User's password.</param>
-    /// <returns>User</returns>
     [Route("/register")]
     [HttpPost]
     [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
@@ -54,20 +48,13 @@ public class UserController : ControllerBase
             };
             return response;
         }
-        catch (Exception)
+        catch
         {
             var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
             return BadRequest(response);
         }
     }
 
-    /// <summary>
-    /// User signing in.
-    /// </summary>
-    /// <param name="username">User's username.</param>
-    /// <param name="password">User's password.</param>
-    /// <param name="token">User's token.</param>
-    /// <returns>User</returns>
     [Route("/login")]
     [HttpPost]
     [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
@@ -116,11 +103,6 @@ public class UserController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Getting user by username
-    /// </summary>
-    /// <param name="username">User's username</param>
-    /// <returns>User</returns>
     [Route("/get-user-by-username")]
     [HttpPost, Authorize]
     [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
@@ -149,7 +131,7 @@ public class UserController : ControllerBase
                 Data = new DataEntry<User>[] { dataEntry },
             };
         }
-        catch (Exception e)
+        catch
         {
             var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
             return BadRequest(response);

@@ -15,8 +15,7 @@ public class FileControllerUnitTests
     public async void Upload_ShouldReturnOkResponse()
     {
         var ms = new MemoryStream();
-        var userIds = new List<int>() { 1 };
-        var okResult = await _fileController.Upload(new FormFile(ms, 0, ms.Length, "test", "test"), userIds);
+        var okResult = await _fileController.Upload(new FormFile(ms, 0, ms.Length, "test", "test"), "[1]");
         Assert.IsType<ActionResult<Response>>(okResult);
     }
 

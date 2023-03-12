@@ -24,12 +24,6 @@ public class FileController : Controller
         S3Manager = s3Manager;
     }
 
-    /// <summary>
-    /// File uploading
-    /// </summary>
-    /// <param name="formFile">File to upload.</param>
-    /// <param name="accessEnabledUserIds">Users' ids that have access to the file.</param>
-    /// <returns>Url to file</returns>
     [Route("/upload")]
     [HttpPost, Authorize]
     [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
@@ -76,7 +70,7 @@ public class FileController : Controller
 
             return response;
         }
-        catch (Exception)
+        catch
         {
             var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
             return BadRequest(response);
@@ -84,11 +78,6 @@ public class FileController : Controller
 
     }
 
-    /// <summary>
-    /// File downloading
-    /// </summary>
-    /// <param name="poolitKey">Poolit key</param>
-    /// <returns>File</returns>
     [Route("/download/{poolitKey}")]
     [HttpGet, Authorize]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
@@ -105,18 +94,13 @@ public class FileController : Controller
             stream.CopyTo(ms);
             return File(ms.ToArray(), file.ContentType, file.Name);
         }
-        catch (Exception)
+        catch
         {
             var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
             return BadRequest(response);
         }
     }
 
-    /// <summary>
-    /// Getting user's files
-    /// </summary>
-    /// <param name="userId">user's id</param>
-    /// <returns>List of user's files</returns>
     [Route("/get-user-files")]
     [HttpPost, Authorize]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
@@ -135,7 +119,7 @@ public class FileController : Controller
             };
             return response;
         }
-        catch (Exception)
+        catch
         {
             var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
             return BadRequest(response);
