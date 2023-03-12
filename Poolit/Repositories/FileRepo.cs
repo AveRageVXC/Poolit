@@ -33,13 +33,14 @@ public class FileRepo : IFileRepo
         using var connection = DBConnectionHandler.Connection;
 
         var fileId = connection.ExecuteScalar<int>(@"
-        INSERT INTO ""File"" (file_name, description, creation_date, size, owner_id, content_type, s3_key, poolit_key)
-        VALUES (@fileName, @description, @creationDate, @size, @ownerId, @contentType, @s3Key, @poolitKey)
+        INSERT INTO ""File"" (name, real_file_name, description, creation_date, size, owner_id, content_type, s3_key, poolit_key)
+        VALUES (@name, @realFileNameName, @description, @creationDate, @size, @ownerId, @contentType, @s3Key, @poolitKey)
         RETURNING file_id;
         ",
         new
         {
-            fileName = file.Name,
+            name = file.Name,
+            realFileNameName = file.RealFileName,
             description = file.Description,
             creationDate = file.CreationDate,
             size = file.Size,
@@ -71,7 +72,8 @@ public class FileRepo : IFileRepo
         var files = DBConnectionHandler.Connection.Query<FileEntity>(@"
         SELECT
             f.file_id AS Id,
-            f.file_name AS Name,
+            f.name AS Name,
+            f.real_file_name AS RealFileName,
             f.description,
             f.creation_date AS CreationDate,
             f.size,
@@ -93,7 +95,8 @@ public class FileRepo : IFileRepo
         var file = DBConnectionHandler.Connection.ExecuteScalar<FileEntity>(@"
         SELECT
             file_id AS Id,
-            file_name AS FileName,
+            name AS Name,
+            real_file_name AS RealFileName,
             description,
             creation_date AS CreationDate,
             size,
@@ -114,7 +117,8 @@ public class FileRepo : IFileRepo
         var file = DBConnectionHandler.Connection.QueryFirst<FileEntity>(@"
         SELECT
             file_id AS Id,
-            file_name AS Name,
+            name AS Name,
+            real_file_name AS RealFileName,
             description,
             creation_date AS CreationDate,
             size,

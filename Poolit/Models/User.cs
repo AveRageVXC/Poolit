@@ -7,7 +7,7 @@ public class User
     [JsonProperty("id")]
     public int Id { get; set; }
     [JsonProperty("username")]
-    public string Username { get; set; }
+    public string Username { get; set; } = string.Empty;
     [JsonIgnore]
-    public string HashedPassword { get; set; }
+    public string HashedPassword { get; set; } = string.Empty;
 }

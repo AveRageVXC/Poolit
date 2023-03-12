@@ -28,8 +28,9 @@ public class FileController : Controller
     [HttpPost, Authorize]
     [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Response>> Upload(IFormFile formFile, string fileName, string description, string accessEnabledUserIds)
+    public async Task<ActionResult<Response>> Upload(IFormFile formFile, string name, string description, string accessEnabledUserIds = "[]")
     {
+        var response = new Response();
         try
         {
             var ids = JsonConvert.DeserializeObject<List<int>>(accessEnabledUserIds);
@@ -38,7 +39,7 @@ public class FileController : Controller
             {
                 formFile.CopyTo(ms);
                 var fileBytes = ms.ToArray();
-                string s = Convert.ToBase64String(fileBytes);
+                var s = Convert.ToBase64String(fileBytes);
             }
 
             Request.Headers.TryGetValue("Authorization", out var tokenHeader);
@@ -46,7 +47,8 @@ public class FileController : Controller
             var userId = _userService.GetIdFromToken(token);
             var newFile = new FileEntity
             {
-                Name = fileName,
+                Name = name,
+                RealFileName = formFile.FileName,
                 Description = description,
                 ContentType = formFile.ContentType,
                 CreationDate = DateTime.Now,
@@ -63,17 +65,13 @@ public class FileController : Controller
                 Type = "file",
                 Data = newFile
             };
-
-            var response = new Response
-            {
-                Data = new DataEntry<FileEntity>[] { dataEntry }
-            };
-
-            return response;
+            response.Data = new [] { dataEntry };
+            
+            return Ok(response);
         }
         catch
         {
-            var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
+            response.Error = "Something went wrong. Please try again later. We are sorry";
             return BadRequest(response);
         }
 
@@ -83,21 +81,32 @@ public class FileController : Controller
     [HttpGet, Authorize]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Response>> Download(string poolitKey)
+    public async Task<ActionResult> Download(string poolitKey)
     {
+        var response = new Response();
         try
         {
+            Request.Headers.TryGetValue("Authorization", out var tokenHeader);
+            var token = tokenHeader[0].Split(' ')[1];
+            var userId = _userService.GetIdFromToken(token);
+            var userFiles = _fileService.GetAvailableFiles(userId);
+            if (userFiles.Any(f => f.PoolitKey == poolitKey) is false)
+            {
+                response.Error = "You don't have acces to this file or it doesn't exist";
+                return BadRequest(response);
+            }
+
             var file = _fileService.GetFileByPoolitKey(poolitKey);
             var S3Object = await S3Manager.GetFileAsync(file.S3Key);
             var stream = S3Object.ResponseStream;
             using var ms = new MemoryStream();
             stream.CopyTo(ms);
 
-            return File(ms.ToArray(), file.ContentType, file.Name);
+            return File(ms.ToArray(), file.ContentType, file.RealFileName);
         }
         catch
         {
-            var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
+            response.Error = "Something went wrong. Please try again later. We are sorry";
             return BadRequest(response);
         }
     }
@@ -108,6 +117,7 @@ public class FileController : Controller
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<Response>> GetAvailableFiles()
     {
+        var response = new Response();
         try
         {
             Request.Headers.TryGetValue("Authorization", out var tokenHeader);
@@ -116,16 +126,13 @@ public class FileController : Controller
             var userFiles = _fileService.GetAvailableFiles(userId);
 
             var files = userFiles.Select(f => new DataEntry<FileEntity> { Type = "file", Data = f }).ToArray();
+            response.Data = files;
 
-            var response = new Response
-            {
-                Data = files
-            };
             return response;
         }
         catch
         {
-            var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
+            response.Error = "Something went wrong. Please try again later. We are sorry";
             return BadRequest(response);
         }
     }

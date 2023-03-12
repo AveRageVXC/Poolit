@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 
 namespace Poolit.Models;
 
@@ -7,7 +8,7 @@ public class DataEntry<T> : IDataEntry
     [JsonProperty("id")]
     public ulong Id { get; set; }
     [JsonProperty("type")]
-    public string Type { get; set; }
+    public string Type { get; set; } = string.Empty;
     [JsonProperty("data")]
     public T Data { get; set; }
 }

@@ -24,17 +24,22 @@ public class UserController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<Response>> Register(string username, string password)
     {
+        var response = new Response();
         try
         {
-            Response response;
             var user = new User { Username = username };
+
+            // CanSave == don't have users's username in db
             if (_userService.CanSave(user) is false)
             {
-                response = new Response { Error = "User with this name already exists." };
+                response.Error = "User with this name already exists";
                 return BadRequest(response);
             }
+
             _userService.AssignPasswordHash(user, password);
+
             _userService.SaveUser(user);
+
             Response.Headers.Add("token", _userService.CreateToken(user));
 
             var dataEntry = new DataEntry<User>()
@@ -42,15 +47,13 @@ public class UserController : ControllerBase
                 Data = user,
                 Type = "user"
             };
-            response = new Response
-            {
-                Data = new DataEntry<User>[] { dataEntry }
-            };
-            return response;
+            response.Data = new [] { dataEntry };
+
+            return Ok(response);
         }
         catch
         {
-            var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
+            response.Error = "Something went wrong. Please try again later. We are sorry";
             return BadRequest(response);
         }
     }
@@ -61,26 +64,24 @@ public class UserController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<Response>> Login(string username, string password)
     {
+        var response = new Response();
         try
         {
             var user = new User { Username = username };
 
+            // CanSave user = user doesn't exists
             if (_userService.CanSave(user))
             {
-                return new Response
-                {
-                    Error = "Wrong username or password."
-                };
+                response.Error = "Wrong username or password.";
+                return BadRequest(response);
             }
             
             user = _userService.GetUserByUsername(username);
 
             if (_userService.VerifyPassword(user, password) is false)
             {
-                return new Response
-                {
-                    Error = "Wrong username or password."
-                };
+                response.Error = "Wrong username or password.";
+                return BadRequest(response);
             }
 
             Response.Headers.Add("token", _userService.CreateToken(user));
@@ -90,15 +91,13 @@ public class UserController : ControllerBase
                 Data = user,
                 Type = "user"
             };
-
-            return new Response
-            {
-                Data = new DataEntry<User>[] { dataEntry },
-            };
+            response.Data = new [] { dataEntry };
+            
+            return Ok(response);
         }
         catch
         {
-            var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
+            response.Error = "Something went wrong. Please try again later. We are sorry";
             return BadRequest(response);
         }
     }
@@ -109,12 +108,15 @@ public class UserController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<Response>> GetUserByUsername(string username)
     {
+        var response = new Response();
         try
         {
             var user = new User { Username = username };
+
+            // CanSave user = user doesn't exist
             if (_userService.CanSave(user))
             {
-                var response = new Response { Error = "No user with this user name." };
+                response.Error = "No user with this user name";
                 return BadRequest(response);
             }
 
@@ -125,15 +127,13 @@ public class UserController : ControllerBase
                 Data = user,
                 Type = "user"
             };
-
-            return new Response
-            {
-                Data = new DataEntry<User>[] { dataEntry },
-            };
+            response.Data = new [] { dataEntry };
+            
+            return Ok(response);
         }
         catch
         {
-            var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
+            response.Error = "Something went wrong. Please try again later. We are sorry";
             return BadRequest(response);
         }
     }

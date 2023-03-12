@@ -5,7 +5,8 @@ public class CreateFileTable : Migration
 {
     public const string FileTable = @"""File""";
     public const string FileId = "file_id";
-    public const string FileName = "file_name";
+    public const string Name = "name";
+    public const string RealFileName = "real_file_name";
     public const string Description = "description";
     public const string CreationDate = "creation_date";
     public const string Size = "size";
@@ -21,7 +22,8 @@ public class CreateFileTable : Migration
         Execute.Sql($@"
         CREATE TABLE {FileTable} (
             {FileId} SERIAL PRIMARY KEY,
-            {FileName} VARCHAR(255) NOT NULL,
+            {Name} VARCHAR(255) NOT NULL,
+            {RealFileName} TEXT NOT NULL,
             {Description} TEXT,
             {CreationDate} TIMESTAMP WITH TIME ZONE NOT NULL,
             {Size} INT NOT NULL,
@@ -31,13 +33,12 @@ public class CreateFileTable : Migration
             {PoolitKey} TEXT NOT NULL UNIQUE
         );
 
-        CREATE INDEX {FileName}_index ON {FileTable}({FileName});
+        CREATE INDEX {Name}_index ON {FileTable}({Name});
         ");
     }
     
     public override void Down()
-    {
-        
+    {   
         Execute.Sql($@"
         DROP TABLE IF EXISTS {FileTable};
         ");
