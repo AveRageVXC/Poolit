@@ -12,6 +12,7 @@ public class CreateFileTable : Migration
     public const string OwnerId = "owner_id";
     public const string UserTable = CreateUserTable.UserTable;
     public const string UserId = CreateUserTable.UserId;
+    public const string ContentType = "content_type";
     public const string S3Key = "s3_key";
     public const string PoolitKey = "poolit_key";
 
@@ -25,6 +26,7 @@ public class CreateFileTable : Migration
             {CreationDate} TIMESTAMP WITH TIME ZONE NOT NULL,
             {Size} INT NOT NULL,
             {OwnerId} INT NOT NULL REFERENCES {UserTable}({UserId}) ON UPDATE CASCADE,
+            {ContentType} TEXT NOT NULL,
             {S3Key} TEXT NOT NULL UNIQUE,
             {PoolitKey} TEXT NOT NULL UNIQUE
         );

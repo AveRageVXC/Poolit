@@ -76,6 +76,7 @@ public class FileRepo : IFileRepo
             f.size,
             f.owner_id AS OwnerId,
             f.s3_key AS S3Key,
+            f.content_type AS ContentType,
             f.poolit_key AS PoolitKey
         FROM ""File"" as f, ""User_File"" as u_f
         WHERE u_f.user_id = @userId
@@ -97,6 +98,7 @@ public class FileRepo : IFileRepo
             size,
             owner_id AS OwnerId,
             s3_key AS S3Key,
+            content_type AS ContentType,
             poolit_key AS PoolitKey
         FROM ""File""
         WHERE file_id=@fileId;
@@ -117,6 +119,7 @@ public class FileRepo : IFileRepo
             size,
             owner_id AS OwnerId,
             s3_key AS S3Key,
+            content_type AS ContentType,
             poolit_key AS PoolitKey
         FROM ""File""
         WHERE poolit_key=@poolitKey;

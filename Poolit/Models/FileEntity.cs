@@ -10,4 +10,5 @@ public class FileEntity
     public int OwnerId { get; set; }
     public string S3Key { get; set; }
     public string PoolitKey { get; set; }
+    public string ContentType { get; set; }
 }
