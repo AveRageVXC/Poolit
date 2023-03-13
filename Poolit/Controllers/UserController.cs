@@ -47,7 +47,7 @@ public class UserController : ControllerBase
                 Data = user,
                 Type = "user"
             };
-            response.Data = new [] { dataEntry };
+            response.Data = new[] { dataEntry };
 
             return Ok(response);
         }
@@ -75,7 +75,7 @@ public class UserController : ControllerBase
                 response.Error = "Wrong username or password.";
                 return BadRequest(response);
             }
-            
+
             user = _userService.GetUserByUsername(username);
 
             if (_userService.VerifyPassword(user, password) is false)
@@ -91,8 +91,8 @@ public class UserController : ControllerBase
                 Data = user,
                 Type = "user"
             };
-            response.Data = new [] { dataEntry };
-            
+            response.Data = new[] { dataEntry };
+
             return Ok(response);
         }
         catch
@@ -127,8 +127,8 @@ public class UserController : ControllerBase
                 Data = user,
                 Type = "user"
             };
-            response.Data = new [] { dataEntry };
-            
+            response.Data = new[] { dataEntry };
+
             return Ok(response);
         }
         catch

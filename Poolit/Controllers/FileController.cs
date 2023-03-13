@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Poolit.Models;
 using Poolit.Services;
-using System.Collections;
 
 namespace Poolit.Controllers;
 
@@ -65,8 +64,8 @@ public class FileController : Controller
                 Type = "file",
                 Data = newFile
             };
-            response.Data = new [] { dataEntry };
-            
+            response.Data = new[] { dataEntry };
+
             return Ok(response);
         }
         catch

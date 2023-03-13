@@ -25,7 +25,7 @@ public class FileEntity
 
     [JsonIgnore]
     public int OwnerId { get; set; }
-    
+
     [JsonIgnore]
     public string ContentType { get; set; } = string.Empty;
 

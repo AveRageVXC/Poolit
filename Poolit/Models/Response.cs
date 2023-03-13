@@ -1,12 +1,11 @@
-﻿using Newtonsoft.Json; 
-using System.Linq; 
+﻿using Newtonsoft.Json;
 
 namespace Poolit.Models;
 
 public class Response
 {
     private IDataEntry[]? _data = null;
-    
+
     [JsonProperty("error")]
     public string Error { get; set; } = string.Empty;
 
@@ -33,7 +32,7 @@ public class Response
 
     public Response(IDataEntry dataEntry)
     {
-        _data = new [] { dataEntry };
+        _data = new[] { dataEntry };
     }
 
     public Response(IDataEntry[] dataEntries)

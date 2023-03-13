@@ -26,6 +26,19 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
+        services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(
+                      builder =>
+                      {
+                          builder
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()
+                            .SetIsOriginAllowed(origin => true)
+                            .AllowCredentials();
+                      });
+        });
+
         services.AddSingleton<IUserService, UserService>();
         services.AddSingleton<IFileService, FileService>();
         services.AddSingleton<IS3Manager, S3Manager>();
@@ -124,8 +137,8 @@ public class Startup
 
         app.UseRouting();
 
-        app.UseCors(builder => builder.AllowAnyOrigin());
-
+        app.UseCors(options => options.AllowAnyHeader().AllowAnyMethod().SetIsOriginAllowed(origin => true).AllowCredentials());
+        
         app.UseAuthentication();
 
         app.UseAuthorization();
