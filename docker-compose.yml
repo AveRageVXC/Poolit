@@ -36,8 +36,6 @@ services:
       - 80:80
     extra_hosts:
       - "host.docker.internal:host-gateway"
-      # - 8000-9000:8000-9000
-
 
 volumes:
   db_volume:
