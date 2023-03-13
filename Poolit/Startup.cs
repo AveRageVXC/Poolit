@@ -97,7 +97,7 @@ public class Startup
                     {
                         if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
                         {
-                            context.Response.Headers.Add("IS-TOKEN-EXPIRED", "true");
+                            context.Response.Headers.Add("is-token-expired", "true");
                         }
                         return Task.CompletedTask;
                     }
@@ -123,6 +123,8 @@ public class Startup
         app.UseHttpsRedirection();
 
         app.UseRouting();
+
+        app.UseCors(builder => builder.AllowAnyOrigin());
 
         app.UseAuthentication();
 

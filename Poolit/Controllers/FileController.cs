@@ -24,7 +24,7 @@ public class FileController : Controller
         S3Manager = s3Manager;
     }
 
-    [Route("/upload")]
+    [Route("upload")]
     [HttpPost, Authorize]
     [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -77,7 +77,7 @@ public class FileController : Controller
 
     }
 
-    [Route("/download/{poolitKey}")]
+    [Route("download/{poolitKey}")]
     [HttpGet, Authorize]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -111,7 +111,7 @@ public class FileController : Controller
         }
     }
 
-    [Route("/get-available-files")]
+    [Route("get-available-files")]
     [HttpPost, Authorize]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]

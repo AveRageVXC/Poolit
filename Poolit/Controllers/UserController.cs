@@ -18,7 +18,7 @@ public class UserController : ControllerBase
         _logger = logger;
     }
 
-    [Route("/register")]
+    [Route("register")]
     [HttpPost]
     [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -51,15 +51,14 @@ public class UserController : ControllerBase
 
             return Ok(response);
         }
-        catch (Exception ex)
+        catch
         {
             response.Error = "Something went wrong. Please try again later. We are sorry";
-            throw ex;
             return BadRequest(response);
         }
     }
 
-    [Route("/login")]
+    [Route("login")]
     [HttpPost]
     [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -103,7 +102,7 @@ public class UserController : ControllerBase
         }
     }
 
-    [Route("/get-user-by-username")]
+    [Route("get-user-by-username")]
     [HttpPost, Authorize]
     [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]

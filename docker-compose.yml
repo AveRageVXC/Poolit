@@ -9,30 +9,35 @@ services:
       - 5432:5432
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    # volumes:
-    #   - db_volume:/var/lib/postegesql/data/
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 5s
+      timeout: 15s
+      retries: 5
+    volumes:
+      - db_volume:/var/lib/postegesql/data/
 
   migrations:
     container_name: migrations
     depends_on:
-      - db
-    build:
-      dockerfile: DBMigrations/Dockerfile
+      db:
+        condition: service_healthy
+    image: cyberplotva/poolit-migrations
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
   poolit:
     container_name: poolit
     depends_on:
       - db
       - migrations
-    build:
-      dockerfile: Poolit/Dockerfile
+    image: cyberplotva/poolit
     ports:
       - 80:80
     extra_hosts:
       - "host.docker.internal:host-gateway"
-     # - 8000-9000:8000-9000
+      # - 8000-9000:8000-9000
 
 
-# volumes:
-#   db_volume:
+volumes:
+  db_volume:
