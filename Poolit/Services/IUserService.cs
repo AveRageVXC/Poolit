@@ -13,4 +13,5 @@ public interface IUserService
     User GetUserById(int id);
     string CreateToken(User user);
     int GetIdFromToken(string token);
+    IEnumerable<User> GetUsersByUsername(string username);
 }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Poolit.Models;
+using Poolit.Models.Requests;
 using Poolit.Services;
 
 namespace Poolit.Controllers;
@@ -24,15 +25,23 @@ public class FileController : Controller
     }
 
     [Route("upload")]
-    [HttpPost, Authorize]
+    [HttpPost]
     [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Response>> Upload(IFormFile formFile, string name, string description, string accessEnabledUserIds = "[]")
+    public async Task<ActionResult<Response>> Upload([FromBody] UploadRequest request)
     {
         var response = new Response();
         try
         {
-            var ids = JsonConvert.DeserializeObject<List<int>>(accessEnabledUserIds);
+            var accessEnabledUserIds = request.AccessEnabledUserIds;
+            var formFile = request.FormFile;
+            var name = request.Name.Trim();
+            if (name.Length > 128)
+            {
+                response.Error = "Length of the file name can't be more than 128 symbols";
+                return BadRequest(response);
+            }
+            var description = request.Description.Trim();
             using var ms = new MemoryStream();
             if (formFile.Length > 0)
             {
@@ -41,9 +50,7 @@ public class FileController : Controller
                 var s = Convert.ToBase64String(fileBytes);
             }
 
-            Request.Headers.TryGetValue("Authorization", out var tokenHeader);
-            var token = tokenHeader[0].Split(' ')[1];
-            var userId = _userService.GetIdFromToken(token);
+            var userId = request.UserId;
             var newFile = new FileEntity
             {
                 Name = name,
@@ -55,7 +62,7 @@ public class FileController : Controller
                 OwnerId = userId
             };
 
-            _fileService.SaveFile(newFile, ids);
+            _fileService.SaveFile(newFile, accessEnabledUserIds);
 
             await S3Manager.PutFileAsync(ms, newFile.S3Key);
 
@@ -73,11 +80,67 @@ public class FileController : Controller
             response.Error = "Something went wrong. Please try again later. We are sorry";
             return BadRequest(response);
         }
+    }
 
+    [Route("upload-file")]
+    [HttpPost]
+    [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<Response>> UploadFile(IFormFile file, string allowedUsersIds, int userId)
+    {
+        var response = new Response();
+        try
+        {
+            var usersIds = JsonConvert.DeserializeObject<List<int>>(allowedUsersIds);
+            var formFile = file;
+            var name = file.FileName.Trim();
+            if (name.Length > 128)
+            {
+                response.Error = "Length of the file name can't be more than 128 symbols";
+                return BadRequest(response);
+            }
+            var description = "";
+            using var ms = new MemoryStream();
+            if (formFile.Length > 0)
+            {
+                formFile.CopyTo(ms);
+                var fileBytes = ms.ToArray();
+                var s = Convert.ToBase64String(fileBytes);
+            }
+
+            var newFile = new FileEntity
+            {
+                Name = name,
+                RealFileName = formFile.FileName,
+                Description = description,
+                ContentType = formFile.ContentType,
+                CreationDate = DateTime.Now,
+                Size = (int)ms.Length,
+                OwnerId = userId
+            };
+
+            _fileService.SaveFile(newFile, usersIds);
+
+            await S3Manager.PutFileAsync(ms, newFile.S3Key);
+
+            var dataEntry = new DataEntry<FileEntity>()
+            {
+                Type = "file",
+                Data = newFile
+            };
+            response.Data = new[] { dataEntry };
+
+            return Ok(response);
+        }
+        catch
+        {
+            response.Error = "Something went wrong. Please try again later. We are sorry";
+            return BadRequest(response);
+        }
     }
 
     [Route("download/{poolitKey}")]
-    [HttpGet, Authorize]
+    [HttpGet]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> Download(string poolitKey)
@@ -85,15 +148,12 @@ public class FileController : Controller
         var response = new Response();
         try
         {
-            Request.Headers.TryGetValue("Authorization", out var tokenHeader);
-            var token = tokenHeader[0].Split(' ')[1];
-            var userId = _userService.GetIdFromToken(token);
-            var userFiles = _fileService.GetAvailableFiles(userId);
+            /*var userFiles = _fileService.GetAvailableFiles(userId);
             if (userFiles.Any(f => f.PoolitKey == poolitKey) is false)
             {
                 response.Error = "You don't have acces to this file or it doesn't exist";
                 return BadRequest(response);
-            }
+            }*/
 
             var file = _fileService.GetFileByPoolitKey(poolitKey);
             var S3Object = await S3Manager.GetFileAsync(file.S3Key);
@@ -111,17 +171,15 @@ public class FileController : Controller
     }
 
     [Route("get-available-files")]
-    [HttpPost, Authorize]
+    [HttpPost]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Response>> GetAvailableFiles()
+    public async Task<ActionResult<Response>> GetAvailableFiles(GetAvailableFilesRequest request)
     {
         var response = new Response();
         try
         {
-            Request.Headers.TryGetValue("Authorization", out var tokenHeader);
-            var token = tokenHeader[0].Split(' ')[1];
-            var userId = _userService.GetIdFromToken(token);
+            var userId = request.UserId;
             var userFiles = _fileService.GetAvailableFiles(userId);
 
             var files = userFiles.Select(f => new DataEntry<FileEntity> { Type = "file", Data = f }).ToArray();

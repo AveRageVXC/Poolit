@@ -9,4 +9,5 @@ public interface IUserRepo
     void SaveUser(User user);
     User GetUserByUsername(string username);
     User GetUserById(int id);
+    IEnumerable<User> GetUsersByUsername(string userName);
 }

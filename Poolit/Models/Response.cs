@@ -17,7 +17,7 @@ public class Response
         {
             _data = value;
 
-            var currentId = 0ul;
+            var currentId = 1ul;
             foreach (var dataEntry in _data)
             {
                 dataEntry.Id = currentId;

@@ -48,14 +48,14 @@ public class Startup
 
         services.AddSwaggerGen(options =>
         {
-            options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+            /*options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
             {
                 In = ParameterLocation.Header,
                 Name = "Authorization",
                 Type = SecuritySchemeType.ApiKey
             });
 
-            options.OperationFilter<SecurityRequirementsOperationFilter>();
+            options.OperationFilter<SecurityRequirementsOperationFilter>();*/
 
             options.SwaggerDoc("v1", new OpenApiInfo
             {
@@ -87,7 +87,7 @@ public class Startup
 
         services.Configure<S3Configuration>(Configuration.GetSection("AWS"));
 
-        services.Configure<JwtConfiguration>(Configuration.GetSection(nameof(JwtConfiguration)));
+        /*services.Configure<JwtConfiguration>(Configuration.GetSection(nameof(JwtConfiguration)));
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -115,7 +115,7 @@ public class Startup
                         return Task.CompletedTask;
                     }
                 };
-            });
+            });*/
 
         services.AddSwaggerGenNewtonsoftSupport();
     }

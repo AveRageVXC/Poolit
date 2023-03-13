@@ -30,6 +30,8 @@ public class UserService : IUserService
     public void SaveUser(User user)
         => _userRepo.SaveUser(user);
 
+    public IEnumerable<User> GetUsersByUsername(string userName)
+        => _userRepo.GetUsersByUsername(userName);
 
     public void AssignPasswordHash(User user, string password)
     {

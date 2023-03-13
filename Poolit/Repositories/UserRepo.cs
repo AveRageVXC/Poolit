@@ -17,6 +17,22 @@ internal class UserRepo : IUserRepo
         return counter == 0;
     }
 
+    public IEnumerable<User> GetUsersByUsername(string username)
+    {
+        var userNameSql = "%" + username + "%";
+        var users = DBConnectionHandler.Connection.Query<User>(@"
+        SELECT
+            user_id AS id,
+            username,
+            password_hash AS hashedpassword
+        FROM ""User""
+        WHERE username LIKE @userNameSql;
+        ",
+        new { userNameSql });
+
+        return users;
+    }
+
     public bool IdExists(int id)
     {
         var counter = DBConnectionHandler.Connection.ExecuteScalar<int>(@"

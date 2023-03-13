@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Poolit.Models;
+using Poolit.Models.Requests;
 using Poolit.Services;
+using System.Text.RegularExpressions;
 
 namespace Poolit.Controllers;
 
@@ -22,12 +24,55 @@ public class UserController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Response>> Register(string username, string password)
+    public async Task<ActionResult<Response>> Register([FromBody] RegisterRequest request)
     {
         var response = new Response();
         try
         {
-            var user = new User { Username = username };
+            var userName = request.UserName.Trim();
+
+            if (userName.Length < 4)
+            {
+                response.Error = "Username must be at least 4 symbols";
+                return BadRequest(response);
+            }
+
+            if (userName.Length > 32)
+            {
+                response.Error = "Username's length can't be over 32 symbols";
+                return BadRequest(response);
+            }
+
+            var password = request.Password.Trim();
+
+            if (password.Length < 8)
+            {
+                response.Error = "Password's length must be at least 8 symbols";
+                return BadRequest(response);
+            }
+
+            if (password.Length > 32)
+            {
+                response.Error = "Password's length can't be over 32 symbols";
+                return BadRequest(response);
+            }
+
+            var hasNumber = new Regex(@"[0-9]+");
+            var hasUpperChar = new Regex(@"[A-Z]+");
+
+            if (!hasNumber.IsMatch(password))
+            {
+                response.Error = "Password must contain at least 1 digit";
+                return BadRequest(response);
+            }
+
+            if (!hasUpperChar.IsMatch(password))
+            {
+                response.Error = "Password must contain at least 1 capital letter";
+                return BadRequest(response);
+            }
+
+            var user = new User { Username = userName };
 
             // CanSave == don't have users's username in db
             if (_userService.CanSave(user) is false)
@@ -36,11 +81,11 @@ public class UserController : ControllerBase
                 return BadRequest(response);
             }
 
-            _userService.AssignPasswordHash(user, password);
+            _userService.AssignPasswordHash(user, password );
 
             _userService.SaveUser(user);
 
-            Response.Headers.Add("token", _userService.CreateToken(user));
+            //Response.Headers.Add("token", token);
 
             var dataEntry = new DataEntry<User>()
             {
@@ -62,11 +107,13 @@ public class UserController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Response>> Login(string username, string password)
+    public async Task<ActionResult<Response>> Login([FromBody] LoginRequest request)
     {
         var response = new Response();
         try
         {
+            var username = request.UserName.Trim();
+            var password = request.Password.Trim();
             var user = new User { Username = username };
 
             // CanSave user = user doesn't exists
@@ -84,7 +131,7 @@ public class UserController : ControllerBase
                 return BadRequest(response);
             }
 
-            Response.Headers.Add("token", _userService.CreateToken(user));
+            //Response.Headers.Add("token", token);
 
             var dataEntry = new DataEntry<User>()
             {
@@ -103,14 +150,15 @@ public class UserController : ControllerBase
     }
 
     [Route("get-user-by-username")]
-    [HttpPost, Authorize]
+    [HttpPost]
     [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Response>> GetUserByUsername(string username)
+    public async Task<ActionResult<Response>> GetUserByUsername([FromBody] string username)
     {
         var response = new Response();
         try
         {
+            username = username.Trim();
             var user = new User { Username = username };
 
             // CanSave user = user doesn't exist
@@ -128,6 +176,30 @@ public class UserController : ControllerBase
                 Type = "user"
             };
             response.Data = new[] { dataEntry };
+
+            return Ok(response);
+        }
+        catch
+        {
+            response.Error = "Something went wrong. Please try again later. We are sorry";
+            return BadRequest(response);
+        }
+    }
+
+    [Route("get-users-by-username")]
+    [HttpPost]
+    [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<Response>> GetUsersByUsername([FromBody] string username)
+    {
+        var response = new Response();
+        try
+        {
+            username = username.Trim();
+
+            var users = _userService.GetUsersByUsername(username).Select(u => new DataEntry<User> { Type = "user", Data = u }).ToArray();
+
+            response.Data = users;
 
             return Ok(response);
         }
