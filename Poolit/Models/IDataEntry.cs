@@ -1,7 +1,6 @@
-﻿namespace Poolit.Models
+﻿namespace Poolit.Models;
+
+public interface IDataEntry
 {
-    public interface IDataEntry
-    {
-        public ulong Id { get; set; }
-    }
+    public ulong Id { get; set; }
 }

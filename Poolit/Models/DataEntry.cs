@@ -1,15 +1,13 @@
 ﻿using Newtonsoft.Json;
 
-namespace Poolit.Models
+namespace Poolit.Models;
+
+public class DataEntry<T> : IDataEntry
 {
-    [Serializable]
-    public class DataEntry<T> : IDataEntry
-    {
-        [JsonProperty("id")]
-        public ulong Id { get; set; }
-        [JsonProperty("type")]
-        public string Type { get; set; }
-        [JsonProperty("data")]
-        public T Data { get; set; }
-    }
+    [JsonProperty("id")]
+    public ulong Id { get; set; }
+    [JsonProperty("type")]
+    public string Type { get; set; } = string.Empty;
+    [JsonProperty("data")]
+    public T Data { get; set; }
 }

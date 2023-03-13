@@ -1,10 +1,13 @@
-﻿namespace Poolit.Models;
+﻿using Newtonsoft.Json;
 
-[Serializable]
+namespace Poolit.Models;
+
 public class User
 {
+    [JsonProperty("id")]
     public int Id { get; set; }
-    public required string Login { get; set; }
-    public string HashedPassword { get; set; }
-    public string Token { get; set; }
+    [JsonProperty("username")]
+    public string Username { get; set; } = string.Empty;
+    [JsonIgnore]
+    public string HashedPassword { get; set; } = string.Empty;
 }

@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:15.2
+    environment:
+      - POSTGRES_DB=poolit
+      - POSTGRES_USER=postgres_user
+      - POSTGRES_PASSWORD=postgres_password
+    ports:
+      - 5432:5432
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 5s
+      timeout: 15s
+      retries: 5
+    volumes:
+      - db_volume:/var/lib/postegesql/data/
+
+  migrations:
+    container_name: migrations
+    depends_on:
+      db:
+        condition: service_healthy
+    image: cyberplotva/poolit-migrations
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  poolit:
+    container_name: poolit
+    depends_on:
+      - db
+      - migrations
+    image: cyberplotva/poolit
+    ports:
+      - 80:80
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  db_volume:

@@ -1,12 +1,13 @@
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Poolit.Models;
+using Poolit.Models.Requests;
 using Poolit.Services;
-using Poolit.Services.Interfaces;
+using System.Text.RegularExpressions;
 
 namespace Poolit.Controllers;
 
-[Route("[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 public class UserController : ControllerBase
 {
@@ -19,91 +20,192 @@ public class UserController : ControllerBase
         _logger = logger;
     }
 
-    /// <summary>
-    /// User signing up.
-    /// </summary>
-    /// <param name="login">User's login.</param>
-    /// <param name="password">User's password.</param>
-    /// <returns>User</returns>
-    [Route("/register")]
+    [Route("register")]
     [HttpPost]
     [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Response>> Register(string login, string password)
+    public async Task<ActionResult<Response>> Register([FromBody] RegisterRequest request)
     {
+        var response = new Response();
         try
         {
-            var user = new User { Login = login };
-            var hashedPassword = _userService.HashPassword(user, password);
-            user.HashedPassword = hashedPassword;
-            user.Id = 0;
-            user.Token = _userService.CreateToken(user);
-            var dataEntry = new DataEntry<User>();
-            dataEntry.Data = user;
-            dataEntry.Type = "user";
-            var response = new Response
-            {
-                Data = new DataEntry<User>[] { dataEntry }
-            };
-            return response;
-        }
-        catch (Exception e)
-        {
-            var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
-            return BadRequest(response);
-        }
-    }
+            var userName = request.UserName.Trim();
 
-    /// <summary>
-    /// User signing in.
-    /// </summary>
-    /// <param name="login">User's login.</param>
-    /// <param name="password">User's password.</param>
-    /// <param name="token">User's token.</param>
-    /// <returns>User</returns>
-    [Route("/login")]
-    [HttpPost]
-    [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Response>> Login(string login, string password, string? token)
-    {
-        try
-        {
-            if (token?.Length > 0)
+            if (userName.Length < 4)
             {
-                // check if token is correct
+                response.Error = "Username must be at least 4 symbols";
+                return BadRequest(response);
             }
 
-            var id = 0;
-            // login: w, password: w
-            var hashedPassword = "AQAAAAIAAYagAAAAENBPS1G889jxdh2gdddLCvhEA7gbyF2Jb7MsxOXKkiXWGzcYj9/Z4bfzQi/FTXrv6A==";
-            var user = new User { Login = login, HashedPassword = hashedPassword };
-            user.Id = id;
-
-            if (_userService.VerifyPassword(user, hashedPassword, password) is false)
+            if (userName.Length > 32)
             {
-                return new Response
-                {
-                    Error = "Wrong login or password"
-                };
+                response.Error = "Username's length can't be over 32 symbols";
+                return BadRequest(response);
             }
 
-            user.Token = _userService.CreateToken(user);
+            var password = request.Password.Trim();
+
+            if (password.Length < 8)
+            {
+                response.Error = "Password's length must be at least 8 symbols";
+                return BadRequest(response);
+            }
+
+            if (password.Length > 32)
+            {
+                response.Error = "Password's length can't be over 32 symbols";
+                return BadRequest(response);
+            }
+
+            var hasNumber = new Regex(@"[0-9]+");
+            var hasUpperChar = new Regex(@"[A-Z]+");
+
+            if (!hasNumber.IsMatch(password))
+            {
+                response.Error = "Password must contain at least 1 digit";
+                return BadRequest(response);
+            }
+
+            if (!hasUpperChar.IsMatch(password))
+            {
+                response.Error = "Password must contain at least 1 capital letter";
+                return BadRequest(response);
+            }
+
+            var user = new User { Username = userName };
+
+            // CanSave == don't have users's username in db
+            if (_userService.CanSave(user) is false)
+            {
+                response.Error = "User with this name already exists";
+                return BadRequest(response);
+            }
+
+            _userService.AssignPasswordHash(user, password );
+
+            _userService.SaveUser(user);
+
+            //Response.Headers.Add("token", token);
 
             var dataEntry = new DataEntry<User>()
             {
                 Data = user,
                 Type = "user"
             };
+            response.Data = new[] { dataEntry };
 
-            return new Response
-            {
-                Data = new DataEntry<User>[] { dataEntry },
-            };
+            return Ok(response);
         }
-        catch (Exception e)
+        catch
         {
-            var response = new Response { Error = "Something went wrong. Please try again later. We are sorry." };
+            response.Error = "Something went wrong. Please try again later. We are sorry";
+            return BadRequest(response);
+        }
+    }
+
+    [Route("login")]
+    [HttpPost]
+    [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<Response>> Login([FromBody] LoginRequest request)
+    {
+        var response = new Response();
+        try
+        {
+            var username = request.UserName.Trim();
+            var password = request.Password.Trim();
+            var user = new User { Username = username };
+
+            // CanSave user = user doesn't exists
+            if (_userService.CanSave(user))
+            {
+                response.Error = "Wrong username or password.";
+                return BadRequest(response);
+            }
+
+            user = _userService.GetUserByUsername(username);
+
+            if (_userService.VerifyPassword(user, password) is false)
+            {
+                response.Error = "Wrong username or password.";
+                return BadRequest(response);
+            }
+
+            //Response.Headers.Add("token", token);
+
+            var dataEntry = new DataEntry<User>()
+            {
+                Data = user,
+                Type = "user"
+            };
+            response.Data = new[] { dataEntry };
+
+            return Ok(response);
+        }
+        catch
+        {
+            response.Error = "Something went wrong. Please try again later. We are sorry";
+            return BadRequest(response);
+        }
+    }
+
+    [Route("get-user-by-username")]
+    [HttpPost]
+    [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<Response>> GetUserByUsername([FromBody] string username)
+    {
+        var response = new Response();
+        try
+        {
+            username = username.Trim();
+            var user = new User { Username = username };
+
+            // CanSave user = user doesn't exist
+            if (_userService.CanSave(user))
+            {
+                response.Error = "No user with this user name";
+                return BadRequest(response);
+            }
+
+            user = _userService.GetUserByUsername(username);
+
+            var dataEntry = new DataEntry<User>()
+            {
+                Data = user,
+                Type = "user"
+            };
+            response.Data = new[] { dataEntry };
+
+            return Ok(response);
+        }
+        catch
+        {
+            response.Error = "Something went wrong. Please try again later. We are sorry";
+            return BadRequest(response);
+        }
+    }
+
+    [Route("get-users-by-username")]
+    [HttpPost]
+    [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<Response>> GetUsersByUsername([FromBody] string username)
+    {
+        var response = new Response();
+        try
+        {
+            username = username.Trim();
+
+            var users = _userService.GetUsersByUsername(username).Select(u => new DataEntry<User> { Type = "user", Data = u }).ToArray();
+
+            response.Data = users;
+
+            return Ok(response);
+        }
+        catch
+        {
+            response.Error = "Something went wrong. Please try again later. We are sorry";
             return BadRequest(response);
         }
     }
