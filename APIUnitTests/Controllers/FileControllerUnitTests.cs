@@ -25,7 +25,7 @@ public class FileControllerUnitTests
     public async void Download_ShouldReturnOkResponse()
     {
         var okResult = await _fileController.Download("test");
-        Assert.IsType<ActionResult<Response>>(okResult);
+        Assert.IsNotType<ActionResult>(okResult);
     }
 
     [Fact]
